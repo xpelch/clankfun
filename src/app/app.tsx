@@ -6,12 +6,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import { type ClankerWithData, fetchParentCast, serverFetchClankers } from "./server";
+import { type ClankerWithData, serverFetchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { Bird, ChartAreaIcon, ChartCandlestick, ChartColumnIncreasingIcon, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
+import { ChartAreaIcon, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 
@@ -117,8 +117,12 @@ function ClankItem({ c }: { c: ClankerWithData }) {
 
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
-      <div className="mb-4 md:mb-0 w-full md:w-48 md:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
-        <img src={c.img_url ?? ""} alt="" className="w-full h-full object-contain" />
+      <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
+        {c.img_url ? (<img src={c.img_url ?? ""} alt="" className="w-full h-full object-contain" />): (
+          <div className="w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50">
+            <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white"/>
+          </div>
+        )}
       </div> 
       <div className="flex-grow pl-2">
         <div className="pl-2">
