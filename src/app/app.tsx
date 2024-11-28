@@ -64,7 +64,7 @@ export function App() {
   }
 
   return (
-    <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black p-2 lg:p-10">
+    <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black p-2 lg:p-6">
       <div className="w-full">
         <Nav refreshing={refreshing} />
         <p className="py-2">
@@ -77,15 +77,17 @@ export function App() {
             <ClankItem key={i} c={item} />
           ))}
         </motion.div>
-        <a href={shareUrl()}>
-          <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
-            <Share size={16} className="mr-2" />
-            Love clank.fun? Share it on Warpcast!
+        <div className="w-full flex lg:flex-row flex-col gap-4">
+          <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
+            Load more
           </Button>
-        </a>
-        <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
-          Load more
-        </Button>
+          <a href={shareUrl()} className="w-full">
+            <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
+              <Share size={16} className="mr-2" />
+              Love clank.fun? Share it on Warpcast!
+            </Button>
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -118,11 +120,33 @@ function ClankItem({ c }: { c: ClankerWithData }) {
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
-        {c.img_url ? (<img src={c.img_url ?? ""} alt="" className="w-full h-full object-contain" />): (
-          <div className="w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50">
-            <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white"/>
-          </div>
+        <a className="w-full h-full" href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer">
+        {c.img_url ? (
+          <motion.img
+            src={c.img_url ?? ""}
+            alt=""
+            className="cursor-pointer w-full h-full object-contain"
+            whileHover={{
+              rotate: 5,
+              scale: 0.9,
+              rotateX: 10,
+              rotateY: 10,
+            }}
+          />
+        ) : (
+          <motion.div
+            className="cursor-pointer w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
+            whileHover={{
+              rotate: 5,
+              scale: 0.9,
+              rotateX: 10,
+              rotateY: 10,
+            }}
+          >
+            <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
+          </motion.div>
         )}
+        </a>
       </div> 
       <div className="flex-grow pl-2">
         <div className="pl-2">
