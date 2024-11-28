@@ -1,7 +1,4 @@
-# anon.page
-
-anonymous content aggregator for Farcaster.
-goal: create the best real-time feed of anon content.
+# clank.fun
 
 ## contribute
 
