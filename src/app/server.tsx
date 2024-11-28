@@ -30,19 +30,18 @@ const ClankerSchema = z.object({
 export type Clanker = z.infer<typeof ClankerSchema>
 export type ClankerWithData = Clanker & { marketCap: number, cast: CastWithInteractions | null }
 
-type InitFetch = {
+type ClankerResponse = {
   data: ClankerWithData[];
   lastPage: number;
 }
 
-export async function serverInitFetch(): Promise<InitFetch> {
+export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
   let clankers: ClankerWithData[] = [];
-  let page = 1;
-  let lastPage = 1;
+  let lastPage = page;
 
   while (clankers.length < 6) {
     console.log(`Fetching page ${page}`);
-    const newClankers = await serverFetchClankers(page);
+    const newClankers = await fetchPage(page);
     clankers = [...clankers, ...newClankers];
     lastPage = page;
     page++;
@@ -54,7 +53,7 @@ export async function serverInitFetch(): Promise<InitFetch> {
   }
 }
 
-export async function serverFetchClankers(page = 1): Promise<ClankerWithData[]> {
+export async function fetchPage(page = 1): Promise<ClankerWithData[]> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=desc&page=${page}&type=all`);
   const data = res.data.data;
   const parsedData = data.map((item: any) => {
