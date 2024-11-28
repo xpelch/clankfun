@@ -21,7 +21,7 @@ function shareUrl() {
   //text: Find the latest clankers with clank.fun!
 
   const url = new URL("https://warpcast.com/~/compose")
-  url.searchParams.append("text", "Find the latest clankers with clank.fun!")
+  url.searchParams.append("text", "Loving this slick new clanker app! 🔥")
   url.searchParams.append("embeds[]", "https://clank.fun")
 
   return url.toString()
@@ -65,14 +65,14 @@ export function App() {
 
   return (
     <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black p-2 lg:p-10">
-      <div className="w-full max-w-[850px]">
+      <div className="w-full">
         <Nav refreshing={refreshing} />
         <p className="py-2">
         </p>
         {clankers.length === 0 && (
           <Loader />
         )}
-        <motion.div className="w-full h-full">
+        <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
           {clankers.map((item, i) => (
             <ClankItem key={i} c={item} />
           ))}
@@ -80,7 +80,7 @@ export function App() {
         <a href={shareUrl()}>
           <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
             <Share size={16} className="mr-2" />
-            Loving this slick new clanker app: clank.fun 🔥
+            Love clank.fun? Share it on Warpcast!
           </Button>
         </a>
         <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
@@ -116,7 +116,7 @@ function ClankItem({ c }: { c: ClankerWithData }) {
   }
 
   return (
-    <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded mb-4">
+    <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-48 md:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
         <img src={c.img_url ?? ""} alt="" className="w-full h-full object-contain" />
       </div> 
