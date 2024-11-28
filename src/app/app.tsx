@@ -11,9 +11,21 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { Bird, ChartAreaIcon, ChartCandlestick, ChartColumnIncreasingIcon, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Users, Zap } from "lucide-react";
+import { Bird, ChartAreaIcon, ChartCandlestick, ChartColumnIncreasingIcon, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
+
+function shareUrl() {
+  //example: https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=https://farcaster.xyz
+  //urL: clank.fun
+  //text: Find the latest clankers with clank.fun!
+
+  const url = new URL("https://warpcast.com/~/compose")
+  url.searchParams.append("text", "Find the latest clankers with clank.fun!")
+  url.searchParams.append("embeds[]", "https://clank.fun")
+
+  return url.toString()
+}
 
 function cleanText(text: string) {
   return text.split(" ").map((word) => {
@@ -65,6 +77,12 @@ export function App() {
             <ClankItem key={i} c={item} />
           ))}
         </motion.div>
+        <a href={shareUrl()}>
+          <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
+            <Share size={16} className="mr-2" />
+            Loving this slick new clanker app: clank.fun 🔥
+          </Button>
+        </a>
         <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
           Load more
         </Button>
