@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { motion } from 'framer-motion';
 import { Bird, ChartAreaIcon, ChartCandlestick, ChartColumnIncreasingIcon, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Users, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
+import { useToast } from "~/hooks/use-toast";
 
 function cleanText(text: string) {
   return text.split(" ").map((word) => {
@@ -86,9 +87,14 @@ function formatPrice(price: number) {
 }
 
 function ClankItem({ c }: { c: ClankerWithData }) {
+  const { toast } = useToast()
 
   function copyAddressToClipboard() {
     void navigator.clipboard.writeText(c.contract_address);
+    toast({
+      title: "Copied!",
+      description: "Copied the CA address for " + c.name,
+    })
   }
 
   return (

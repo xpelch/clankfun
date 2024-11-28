@@ -5,6 +5,7 @@ import "~/styles/globals.css";
 
 import { Poppins } from "next/font/google";
 import { type Metadata } from "next";
+import { Toaster } from "@/components/ui/toaster"
 
 const firaCode = Poppins({
   weight: "400",
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${firaCode.variable} dark`}>
       <body>{children}</body>
+      <Toaster />
     </html>
   );
 }
