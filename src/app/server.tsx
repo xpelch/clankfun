@@ -30,6 +30,30 @@ const ClankerSchema = z.object({
 export type Clanker = z.infer<typeof ClankerSchema>
 export type ClankerWithData = Clanker & { marketCap: number, cast: CastWithInteractions | null }
 
+type InitFetch = {
+  data: ClankerWithData[];
+  lastPage: number;
+}
+
+export async function serverInitFetch(): Promise<InitFetch> {
+  let clankers: ClankerWithData[] = [];
+  let page = 1;
+  let lastPage = 1;
+
+  while (clankers.length < 6) {
+    console.log(`Fetching page ${page}`);
+    const newClankers = await serverFetchClankers(page);
+    clankers = [...clankers, ...newClankers];
+    lastPage = page;
+    page++;
+  }
+
+  return {
+    data: clankers,
+    lastPage,
+  }
+}
+
 export async function serverFetchClankers(page = 1): Promise<ClankerWithData[]> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=desc&page=${page}&type=all`);
   const data = res.data.data;
@@ -51,7 +75,7 @@ export async function serverFetchClankers(page = 1): Promise<ClankerWithData[]> 
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
-  return clankersWithMarketCap
+  return clankersWithMarketCap.filter((c) => (c.cast?.author.follower_count ?? 0) > 0)
 }
 
 export async function fetchParentCast(hash: string) {

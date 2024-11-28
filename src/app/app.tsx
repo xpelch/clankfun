@@ -6,7 +6,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchClankers } from "./server";
+import { type ClankerWithData, serverFetchClankers, serverInitFetch } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -16,10 +16,6 @@ import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 
 function shareUrl() {
-  //example: https://warpcast.com/~/compose?text=Hello%20world!&embeds[]=https://farcaster.xyz
-  //urL: clank.fun
-  //text: Find the latest clankers with clank.fun!
-
   const url = new URL("https://warpcast.com/~/compose")
   url.searchParams.append("text", "Loving this slick new clanker app! 🔥")
   url.searchParams.append("embeds[]", "https://clank.fun")
@@ -40,25 +36,25 @@ export function App() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
 
   useEffect(() => {
-    const updateFeed = async () => {
-      console.log("Updating feed.");
+    const fetchClankers = async () => {
       setRefreshing(true);
-      const clankers = await serverFetchClankers();
+      const init = await serverInitFetch();
+      setClankers(init.data);
+      setPage(init.lastPage);
       setRefreshing(false);
-      setClankers(clankers);
-      setPage(1)
     };
 
-    void updateFeed();
+    void fetchClankers();
   }, []);
 
   async function fetchMore() {
     setRefreshing(true)
     const newPage = page + 1;
     const newClankers = await serverFetchClankers(newPage);
-    setClankers([...clankers, ...newClankers]);
+    setClankers(prevClankers => [...prevClankers, ...newClankers]);
     setPage(newPage);
     setRefreshing(false)
   }
@@ -74,7 +70,7 @@ export function App() {
         )}
         <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
           {clankers.map((item, i) => (
-            <ClankItem key={i} c={item} />
+            <ClankItem key={i} c={item} onSelect={() => setDetailClanker(item)} />
           ))}
         </motion.div>
         <div className="w-full flex lg:flex-row flex-col gap-4">
@@ -89,6 +85,7 @@ export function App() {
           </a>
         </div>
       </div>
+      <BuyModal clanker={detailClanker} onOpenChange={() => setDetailClanker(null)} />
     </div>
   );
 }
@@ -106,7 +103,7 @@ function formatPrice(price: number) {
   }
 }
 
-function ClankItem({ c }: { c: ClankerWithData }) {
+function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void }) {
   const { toast } = useToast()
 
   function copyAddressToClipboard() {
@@ -120,7 +117,7 @@ function ClankItem({ c }: { c: ClankerWithData }) {
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
-        <a className="w-full h-full" href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer">
+        <div className="w-full h-full" onClick={onSelect}>
         {c.img_url ? (
           <motion.img
             src={c.img_url ?? ""}
@@ -146,7 +143,7 @@ function ClankItem({ c }: { c: ClankerWithData }) {
             <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
           </motion.div>
         )}
-        </a>
+        </div>
       </div> 
       <div className="flex-grow pl-2">
         <div className="pl-2">
@@ -301,6 +298,22 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
     </motion.div>
   );
 };
+
+function BuyModal({ clanker, onOpenChange }: { clanker: ClankerWithData | null, onOpenChange: (visible: boolean) => void }) {
+  return (
+    <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Buy Token</DialogTitle>
+          <DialogDescription>
+            Purchase this token
+          </DialogDescription>
+          Blah Blah Blah
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
   return (
