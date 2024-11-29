@@ -12,6 +12,7 @@ import { fetchMultiPoolMarketCaps } from './onchain';
 
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
+import { getSwapPrice } from '~/lib/0x';
 
 const ClankerSchema = z.object({
   id: z.number(),
@@ -35,6 +36,10 @@ type ClankerResponse = {
   lastPage: number;
 }
 
+export async function serverFetchSwapPrice(userAddress: string, tokenAddress: string, amount: number, isSell: boolean) {
+  return await getSwapPrice(userAddress, tokenAddress, amount, isSell)
+}
+
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
   let clankers: ClankerWithData[] = [];
   let lastPage = page;
@@ -53,7 +58,7 @@ export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
   }
 }
 
-export async function fetchPage(page = 1): Promise<ClankerWithData[]> {
+async function fetchPage(page = 1): Promise<ClankerWithData[]> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=desc&page=${page}&type=all`);
   const data = res.data.data;
   const parsedData = data.map((item: any) => {

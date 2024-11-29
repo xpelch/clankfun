@@ -38,6 +38,6 @@
     "**/*.cjs",
     "**/*.js",
     ".next/types/**/*.ts"
-  ],
+, "src/app/app_save.tsx.old"  ],
   "exclude": ["node_modules"]
 }

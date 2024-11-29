@@ -10,6 +10,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "test", "production"]),
     NEYNAR_API_KEY: z.string(),
     ALCHEMY_API_KEY: z.string(),
+    OX_API_KEY: z.string(),
   },
 
   /**
@@ -30,6 +31,7 @@ export const env = createEnv({
     NEYNAR_API_KEY: process.env.NEYNAR_API_KEY,
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT,
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
+    OX_API_KEY: process.env.OX_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

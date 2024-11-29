@@ -119,7 +119,7 @@ function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void 
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
-        <div className="w-full h-full">
+        <div className="w-full h-full" onClick={onSelect}>
         {c.img_url ? (
           <motion.img
             src={c.img_url ?? ""}
@@ -306,16 +306,22 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
   );
 };
 
+import { useAccount, useChainId } from "wagmi";
+import { type PriceResponse } from "~/types";
+import { SwapInterface } from "./swap";
+// import QuoteView from "~/components/0xswap/quote";
+// import PriceView from "~/components/0xswap/price";
+
 function BuyModal({ clanker, onOpenChange }: { clanker: ClankerWithData | null, onOpenChange: (visible: boolean) => void }) {
+
   return (
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Buy Token</DialogTitle>
           <DialogDescription>
-            Purchase this token
           </DialogDescription>
-          Blah Blah Blah
+          {clanker && <SwapInterface clanker={clanker} />}
         </DialogHeader>
       </DialogContent>
     </Dialog>
