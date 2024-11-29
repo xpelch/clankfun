@@ -14,6 +14,8 @@ import { motion } from 'framer-motion';
 import { ChartAreaIcon, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
 
 function shareUrl() {
   const url = new URL("https://warpcast.com/~/compose")
@@ -239,6 +241,9 @@ function Nav({ refreshing }: { refreshing: boolean }) {
         </div>
       </div>
       <CastButtonDialog refreshing={refreshing} />
+      <div className="text-sm flex-none">
+        <ConnectButton showBalance={false} accountStatus={"avatar"} />
+      </div>
     </nav>
   )
 }

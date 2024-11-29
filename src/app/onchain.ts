@@ -7,7 +7,7 @@ import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/I
 import { env } from '~/env';
 import { Alchemy, Network, Utils } from 'alchemy-sdk';
 
-const provider = new ethers.JsonRpcProvider(env.ALCHEMY_BASE_ENDPOINT);
+const provider = new ethers.JsonRpcProvider(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT);
 
 import { BigNumber } from '@ethersproject/bignumber';
 

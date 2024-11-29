@@ -9,7 +9,6 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     NEYNAR_API_KEY: z.string(),
-    ALCHEMY_BASE_ENDPOINT: z.string(),
     ALCHEMY_API_KEY: z.string(),
   },
 
@@ -19,6 +18,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
+    NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: z.string(),
   },
 
   /**
@@ -28,7 +28,7 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     NEYNAR_API_KEY: process.env.NEYNAR_API_KEY,
-    ALCHEMY_BASE_ENDPOINT: process.env.ALCHEMY_BASE_ENDPOINT,
+    NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT,
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
   },
   /**
