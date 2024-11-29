@@ -117,7 +117,7 @@ function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void 
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
-        <div className="w-full h-full" onClick={onSelect}>
+        <div className="w-full h-full">
         {c.img_url ? (
           <motion.img
             src={c.img_url ?? ""}
