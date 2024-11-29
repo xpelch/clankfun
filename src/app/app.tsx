@@ -151,6 +151,7 @@ function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void 
             <p className="font-bold text-xl flex-grow">
               {c.name} (${c.symbol})
             </p>
+            <div className="flex-none flex gap-2">
             <WithTooltip text="Copy CA">
               <Button size="icon" className="bg-slate-900 text-white hover:bg-slate-500" onClick={copyAddressToClipboard}>
                 <Clipboard size={16} />
@@ -170,6 +171,7 @@ function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void 
                 </Button>
               </a>
             </WithTooltip>
+            </div>
           </div>
           <div className="flex gap-4 mt-2 text-lg">
             <WithTooltip text="Market Cap">
