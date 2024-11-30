@@ -267,7 +267,7 @@ function Nav({ refreshing }: { refreshing: boolean }) {
           <h1 className="text-xl">
             clank.fun
           </h1>
-          <p className="text-xs font-muted-foreground">
+          <p className="text-xs font-muted-foreground hidden md:block">
             the latest clanker memecoins on Farcaster
           </p>
         </div>
@@ -372,13 +372,14 @@ function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {refreshing ? 
-        (<Button size="sm" disabled>
-          Refreshing...
-          </Button>) :
-        (<Button size="sm" className="bg-slate-900 text-white hover:bg-slate-500">
-          What is this?
-        </Button>)}
+        <Button size="sm" className="bg-slate-900 text-white hover:bg-slate-500">
+          <span className="hidden md:block">
+            What is this?
+          </span>
+          <span className="md:hidden">
+            ???
+          </span>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
