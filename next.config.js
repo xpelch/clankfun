@@ -6,6 +6,21 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
+    webpack: (config) => {
+      // Handle .map files
+      config.module.rules.push({
+        test: /\.map$/,
+        loader: 'ignore-loader',
+      });
+
+      // Handle .d.ts files
+      config.module.rules.push({
+        test: /\.d\.ts$/,
+        loader: 'ignore-loader',
+      });
+
+      return config;
+    },
     logging: {
         fetches: {
           fullUrl: true,
