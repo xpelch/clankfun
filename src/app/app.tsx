@@ -11,7 +11,7 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
+import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Wallet, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
@@ -109,6 +109,7 @@ export function App() {
         clanker={detailClanker} 
         onOpenChange={() => setDetailClanker(null)} 
         apeAmount={apeAmount}
+        onAped={() => setApeAmount(null)}
       />
     </div>
   );
@@ -182,8 +183,9 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
             <div className="flex-none flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size="icon" className="bg-purple-900 text-white hover:bg-slate-500 text-lg">
-                    🦍
+                  <Button className="bg-purple-800 text-white hover:bg-purple-700">
+                    Trade
+                    <Wallet size={24} />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
@@ -350,10 +352,12 @@ function BuyModal({
   clanker, 
   onOpenChange,
   apeAmount,
+  onAped,
 }: { 
   clanker: ClankerWithData | null, 
   onOpenChange: (visible: boolean) => void 
   apeAmount: number | null
+  onAped: () => void
 }) {
 
   return (
@@ -361,7 +365,12 @@ function BuyModal({
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Trade {clanker?.name}</DialogTitle>
-          {clanker && <SwapInterface clanker={clanker} apeAmount={apeAmount} />}
+          {clanker && 
+            <SwapInterface 
+              clanker={clanker} 
+              apeAmount={apeAmount} 
+              onAped={onAped}
+            />}
         </DialogHeader>
       </DialogContent>
     </Dialog>

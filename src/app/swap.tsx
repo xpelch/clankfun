@@ -16,6 +16,7 @@ import {
 } from "viem";
 import type { Address, Hex } from "viem";
 import { useToast } from "~/hooks/use-toast";
+import { PriceInput } from "~/components/ui/priceinput";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -30,7 +31,15 @@ function formatUSD(amount: number) {
   }).format(amount);
 }
 
-export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData, apeAmount: number | null }) {
+export function SwapInterface({ 
+  clanker, 
+  apeAmount, 
+  onAped
+}: { 
+  clanker: ClankerWithData, 
+  apeAmount: number | null 
+  onAped: () => void
+}) {
 
   const { toast } = useToast()
   const [amount, setAmount] = useState<number>(0);
@@ -98,6 +107,7 @@ export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData
       setAmount(apeAmount)
       setIsBuying(true)
       startSwap(apeAmount, true)
+      onAped()
     }
   }, [apeAmount, ethBalance])
 
@@ -238,7 +248,7 @@ export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData
                 <span>From</span>
               </div>
               <div className="flex rounded-lg shadow-sm shadow-black/5">
-                <Input
+                <PriceInput
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
                   placeholder="google"
@@ -254,7 +264,7 @@ export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData
                 <span>To</span>
               </div>
               <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
-                <Input
+                <PriceInput
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
                   placeholder="google"
@@ -276,7 +286,7 @@ export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData
                 <span>From</span>
               </div>
               <div className="flex rounded-lg shadow-sm shadow-black/5">
-                <Input
+                <PriceInput
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
                   placeholder="google"
@@ -296,7 +306,7 @@ export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData
                 <span>WETH</span>
               </div>
               <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
-                <Input
+                <PriceInput
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
                   placeholder="google"
