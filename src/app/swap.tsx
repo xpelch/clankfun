@@ -1,7 +1,6 @@
 "use client"
 
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
