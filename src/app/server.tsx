@@ -24,7 +24,7 @@ const ClankerSchema = z.object({
   img_url: z.string().nullable(),
   pool_address: z.string(),
   cast_hash: z.string(),
-  type: z.enum(['clanker', 'proxy']),
+  type: z.string(),
 });
 
 export type Clanker = z.infer<typeof ClankerSchema>
