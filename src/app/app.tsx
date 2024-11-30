@@ -318,9 +318,7 @@ function BuyModal({ clanker, onOpenChange }: { clanker: ClankerWithData | null, 
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle>Buy Token</DialogTitle>
-          <DialogDescription>
-          </DialogDescription>
+          <DialogTitle>Trade {clanker?.name}</DialogTitle>
           {clanker && <SwapInterface clanker={clanker} />}
         </DialogHeader>
       </DialogContent>

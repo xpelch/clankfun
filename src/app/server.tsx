@@ -8,7 +8,7 @@
 import { env } from '~/env';
 import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 import axios from 'axios';
-import { fetchMultiPoolMarketCaps } from './onchain';
+import { fetchMultiPoolMarketCaps, getEthUsdPrice } from './onchain';
 
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
@@ -42,6 +42,10 @@ export async function serverFetchSwapQuote(userAddress: string, tokenAddress: st
 
 export async function serverFetchSwapPrice(userAddress: string, tokenAddress: string, amount: number, isSell: boolean) {
   return await getSwapPrice(userAddress, tokenAddress, amount, isSell)
+}
+
+export async function serverEthUSDPrice() {
+  return getEthUsdPrice()
 }
 
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {

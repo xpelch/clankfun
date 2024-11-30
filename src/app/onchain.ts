@@ -19,7 +19,7 @@ const settings = {
 
 const alchemy = new Alchemy(settings);
 
-async function getEthUsdPrice(): Promise<number> {
+export async function getEthUsdPrice(): Promise<number> {
   const poolAddress = "0x4200000000000000000000000000000000000006"; // e.g., WETH-USDC pool address
   const poolData = await alchemy.prices.getTokenPriceByAddress([{ network: Network.BASE_MAINNET, address: poolAddress }]);
   return poolData.data[0]!.prices[0]!.value as unknown as number;

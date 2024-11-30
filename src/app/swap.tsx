@@ -1,6 +1,6 @@
 "use client"
 
-import { serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
+import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
 
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -15,18 +15,39 @@ import {
   size,
 } from "viem";
 import type { Address, Hex } from "viem";
+import { useToast } from "~/hooks/use-toast";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
 const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
 
+function formatUSD(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 4,
+  }).format(amount);
+}
+
 export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
+  const { toast } = useToast()
   const [amount, setAmount] = useState<number>(0);
   const [isBuying, setIsBuying] = useState(true);
-  const [error, setError] = useState("");
   const [buyAmount, setBuyAmount] = useState<number>(0);
   const [priceRes, setPriceRes] = useState<any>(null);
-  const [cancelRequest, setCancelRequest] = useState<boolean>(false);
+  const [ethPrice, setEthPrice] = useState<number>(3600);
+
+  useEffect(() => {
+    async function fetchPrice() {
+      setEthPrice(await serverEthUSDPrice())
+    }
+    void fetchPrice()
+  }, [])
+
+  const swapUSDAmount =  isBuying ? amount * ethPrice : buyAmount * ethPrice;
+  const sellTokenName = isBuying ? "WETH" : clanker.symbol;
+  const buyTokenName = isBuying ? clanker.symbol : "WETH";
 
   const sellTokenAddress = isBuying ? WETH_ADDRESS : clanker.contract_address as `0x${string}`;
 
@@ -61,34 +82,60 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
 
   async function updateSwapAmount(cancelled: boolean) {
     if (!address || !clanker || cancelled) return;
-    setCancelRequest(true);
     const res = await serverFetchSwapPrice(
       address, 
       clanker.contract_address, 
       amount, 
       !isBuying
     );
+    if (!res.buyAmount) return;
 
     if (!cancelled) {
       const buyAmount = parseFloat(ethers.formatEther(res.buyAmount));
       setBuyAmount(buyAmount);
       setPriceRes(res);
-      setCancelRequest(false);
     }
   }
 
   const {
     data: hash,
-    isPending,
+    isPending: transactionPending,
     error: transactionError,
     sendTransaction,
   } = useSendTransaction();
 
-  const { signTypedDataAsync } = useSignTypedData()
+  const { data: receipt, isLoading: waitingForReceipt, error: waitingError } = useWaitForTransactionReceipt({
+    hash,
+  });
 
-  // STEP 1: User clicks swap, fetch quote, set swapQuote and initiate signature
+  useEffect(() => {
+    if (waitingForReceipt) {
+      toast({
+        title: "Transaction pending",
+        description: "Your transaction is being processed.",
+      });
+    }
+    if (receipt) {
+      toast({
+        title: "Success!",
+        description: "Your transaction was successful.",
+      })
+    }
+    if (waitingError) {
+      toast({
+        title: "Failed",
+        description: "Your transaction has failed. Please try again.",
+      })
+    }
+  }, [receipt, waitingForReceipt, waitingError]);
+
+  const [userShouldApprove, setUserShouldApprove] = useState(false);
+
+  const { signTypedDataAsync, isPending: signPending } = useSignTypedData()
+
   async function initiateSwap() {
     if (!address || !clanker || amount <= 0 ) return;
+    console.log("Fetching quote")
     const quote = await serverFetchSwapQuote(
       address, 
       clanker.contract_address, 
@@ -99,6 +146,7 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
     if (!quote.permit2?.eip712) return
     if (!quote.transaction) return
 
+    console.log("Getting signature")
     const signature = await signTypedDataAsync(quote.permit2.eip712)
     const signatureLengthInHex = numberToHex(size(signature), {
       signed: false,
@@ -115,6 +163,8 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
       sig,
     ]);
 
+    setUserShouldApprove(true);
+    console.log("Sending transaction")
     sendTransaction &&
     sendTransaction({
       account: address,
@@ -128,6 +178,7 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
         : undefined, // value is used for native tokens
       chainId: 8453,
     });
+    setUserShouldApprove(false);
   }
 
   const handleUpdateAmount = async (newAmount: number) => {
@@ -140,8 +191,9 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
     setIsBuying(!isBuying);
     setAmount(0);
     setBuyAmount(0);
-    setCancelRequest(true);
   };
+
+  const actionPending = transactionPending || signPending;
 
   return (
     <div className="flex flex-col gap-4">
@@ -159,33 +211,37 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
             <div className="flex flex-col gap-2">
               <div className="flex justify-between">
                 <span>From</span>
-                <span>WETH</span>
               </div>
-              <Input
-                type="number"
-                placeholder="0.0"
-                value={amount}
-                onChange={(e) => handleUpdateAmount(parseFloat(e.target.value))}
-              />
-              {ethBalance && <span className="text-gray-500">Balance: {ethers.formatEther(ethBalance.value)}</span>}
+              <div className="flex rounded-lg shadow-sm shadow-black/5">
+                <Input
+                  id="input-15"
+                  className="-me-px rounded-e-none shadow-none"
+                  placeholder="google"
+                  value={amount}
+                  onChange={(e) => handleUpdateAmount(parseFloat(e.target.value))}
+                />
+                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
+                  WETH
+                </span>
+              </div>
+              {ethBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(ethBalance.value)}</span>}
               <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
                 <span>To</span>
-                <div className="flex-none flex gap-2">
-                  <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />
-                  <span>{clanker.symbol}</span>
-                </div>
               </div>
-              <Input
-                type="number"
-                placeholder="0.0"
-                value={buyAmount}
-                disabled
-              />
-              <div className="flex justify-between">
-                <Button onClick={() => handlePercentageChange(25)}>25%</Button>
-                <Button onClick={() => handlePercentageChange(50)}>50%</Button>
-                <Button onClick={() => handlePercentageChange(75)}>75%</Button>
-                <Button onClick={() => handlePercentageChange(100)}>100%</Button>
+              <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
+                <Input
+                  id="input-15"
+                  className="-me-px rounded-e-none shadow-none"
+                  placeholder="google"
+                  value={buyAmount}
+                  disabled
+                />
+                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
+                  <div className="flex gap-2 items-center">
+                    {clanker.img_url && <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />}
+                    <span className="mr-5">{clanker.symbol}</span>
+                  </div>
+                </span>
               </div>
             </div>
           </TabsContent>
@@ -193,44 +249,59 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
             <div className="flex flex-col gap-2">
               <div className="flex justify-between">
                 <span>From</span>
-                <div className="flex-none flex gap-2">
-                  <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />
-                  <span>{clanker.symbol}</span>
-                </div>
               </div>
-              <Input
-                type="number"
-                placeholder="0.0"
-                value={amount}
-                onChange={(e) => setAmount(parseFloat(e.target.value))}
-              />
-              {tokenBalance && <span className="text-gray-500">Balance: {ethers.formatEther(tokenBalance.value)}</span>}
+              <div className="flex rounded-lg shadow-sm shadow-black/5">
+                <Input
+                  id="input-15"
+                  className="-me-px rounded-e-none shadow-none"
+                  placeholder="google"
+                  value={amount}
+                  onChange={(e) => setAmount(parseFloat(e.target.value))}
+                />
+                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
+                  <div className="flex gap-2 items-center">
+                    {clanker.img_url && <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />}
+                    <span className="mr-5">{clanker.symbol}</span>
+                  </div>
+                </span>
+              </div>
+              {tokenBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(tokenBalance.value)}</span>}
               <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
                 <span>To</span>
                 <span>WETH</span>
               </div>
-              <Input
-                type="number"
-                placeholder="0.0"
-                value={buyAmount}
-                disabled
-              />
-              <div className="flex justify-between">
-                <Button onClick={() => handlePercentageChange(25)}>25%</Button>
-                <Button onClick={() => handlePercentageChange(50)}>50%</Button>
-                <Button onClick={() => handlePercentageChange(75)}>75%</Button>
-                <Button onClick={() => handlePercentageChange(100)}>100%</Button>
+              <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
+                <Input
+                  id="input-15"
+                  className="-me-px rounded-e-none shadow-none"
+                  placeholder="google"
+                  value={buyAmount}
+                  disabled
+                />
+                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
+                  WETH
+                </span>
               </div>
             </div>
           </TabsContent>
         </div>
       </Tabs>
+      <div className="flex justify-between gap-2">
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(25)}>25%</Button>
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(50)}>50%</Button>
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(75)}>75%</Button>
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(100)}>100%</Button>
+      </div>
+      <div>
+        {swapUSDAmount > 0 && <span className="text-white/50">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}
+      </div>
       <ApproveOrReviewButton 
         onClick={initiateSwap} 
         taker={address as Address} 
         sellTokenAddress={sellTokenAddress} 
-        disabled={!!error || cancelRequest} 
+        disabled={actionPending} 
         price={priceRes} 
+        userShouldApprove={userShouldApprove}
       />
     </div>
   );
@@ -242,12 +313,14 @@ function ApproveOrReviewButton({
   sellTokenAddress,
   disabled,
   price,
+  userShouldApprove
 }: {
   taker: Address;
   onClick: () => void;
   sellTokenAddress: Address;
   disabled?: boolean;
   price: any;
+  userShouldApprove: boolean;
 }) {
   // If price.issues.allowance is null, show the Review Trade button
   if (price?.issues.allowance === null) {
@@ -261,7 +334,7 @@ function ApproveOrReviewButton({
         }}
         className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-25"
       >
-        {disabled ? "Insufficient Balance" : "Review Trade"}
+        {disabled ? "Swapping..." : userShouldApprove ? "Check Wallet" : "Swap"}
       </button>
     );
   }
@@ -301,10 +374,10 @@ function ApproveOrReviewButton({
 
   // Call `refetch` when the transaction succeeds
   useEffect(() => {
-    if (data) {
+    if (data || approvalReceiptData) {
       refetch();
     }
-  }, [data, refetch]);
+  }, [data, approvalReceiptData, refetch]);
 
   if (error) {
     return <div>Something went wrong: {error.message}</div>;
@@ -344,7 +417,7 @@ function ApproveOrReviewButton({
       }}
       className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-25"
     >
-      {disabled ? "Insufficient Balance" : "Review Trade"}
+      {disabled ? "Swapping..." : "Swap"}
     </button>
   );
 }
