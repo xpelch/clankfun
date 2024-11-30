@@ -1,6 +1,7 @@
 "use client"
 
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
@@ -30,7 +31,8 @@ function formatUSD(amount: number) {
   }).format(amount);
 }
 
-export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
+export function SwapInterface({ clanker, apeAmount }: { clanker: ClankerWithData, apeAmount: number | null }) {
+
   const { toast } = useToast()
   const [amount, setAmount] = useState<number>(0);
   const [isBuying, setIsBuying] = useState(true);
@@ -79,6 +81,26 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
     void updateSwapAmount(cancelled);
     return () => { cancelled = true; }
   }, [amount, isBuying]);
+
+  useEffect(() => {
+    console.log(apeAmount, ethBalance)
+    if (!apeAmount || !ethBalance) return;
+    const balance = balances().eth
+    if (apeAmount > balance) {
+      toast({
+        title: "Insufficient balance",
+        description: "You do not have enough WETH to make this trade. Please choose a different amount"
+      })
+    } else {
+      toast({
+        title: "Aping in 🦍",
+      })
+
+      setAmount(apeAmount)
+      setIsBuying(true)
+      startSwap(apeAmount, true)
+    }
+  }, [apeAmount, ethBalance])
 
   async function updateSwapAmount(cancelled: boolean) {
     if (!address || !clanker || cancelled) return;
@@ -133,7 +155,7 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
 
   const { signTypedDataAsync, isPending: signPending } = useSignTypedData()
 
-  async function initiateSwap() {
+  async function startSwap(amount: number, isBuying: boolean) {
     if (!address || !clanker || amount <= 0 ) return;
     console.log("Fetching quote")
     const quote = await serverFetchSwapQuote(
@@ -179,6 +201,10 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
       chainId: 8453,
     });
     setUserShouldApprove(false);
+  }
+
+  async function initiateSwap() {
+    startSwap(amount, isBuying);
   }
 
   const handleUpdateAmount = async (newAmount: number) => {
@@ -295,14 +321,14 @@ export function SwapInterface({ clanker }: { clanker: ClankerWithData }) {
       <div>
         {swapUSDAmount > 0 && <span className="text-white/50">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}
       </div>
-      <ApproveOrReviewButton 
+      {address ? <ApproveOrReviewButton 
         onClick={initiateSwap} 
         taker={address as Address} 
         sellTokenAddress={sellTokenAddress} 
         disabled={actionPending} 
         price={priceRes} 
         userShouldApprove={userShouldApprove}
-      />
+      /> : <Button disabled={true}>Connect Wallet to Trade</Button>}
     </div>
   );
 }

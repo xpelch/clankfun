@@ -11,7 +11,7 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ChartAreaIcon, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
+import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -34,11 +34,20 @@ function cleanText(text: string) {
   }).join(" ");
 }
 
+function cleanTicker(text: string) {
+  if (text.length > 13) {
+    return text.slice(0, 13) + "...";
+  }
+  return text
+}
+
 export function App() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
+
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [apeAmount, setApeAmount] = useState<number | null>(null)
 
   useEffect(() => {
     const fetchClankers = async () => {
@@ -61,6 +70,11 @@ export function App() {
     setRefreshing(false)
   }
 
+  function onApe(clanker: ClankerWithData, eth: number) {
+    setApeAmount(eth)
+    setDetailClanker(clanker)
+  }
+
   return (
     <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black p-2 lg:p-6">
       <div className="w-full">
@@ -72,7 +86,12 @@ export function App() {
         )}
         <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
           {clankers.map((item, i) => (
-            <ClankItem key={i} c={item} onSelect={() => setDetailClanker(item)} />
+            <ClankItem 
+              key={i} 
+              c={item} 
+              onSelect={() => setDetailClanker(item)} 
+              onApe={(eth) => onApe(item, eth)}
+            />
           ))}
         </motion.div>
         <div className="w-full flex lg:flex-row flex-col gap-4">
@@ -87,7 +106,11 @@ export function App() {
           </a>
         </div>
       </div>
-      <BuyModal clanker={detailClanker} onOpenChange={() => setDetailClanker(null)} />
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
+        apeAmount={apeAmount}
+      />
     </div>
   );
 }
@@ -105,7 +128,7 @@ function formatPrice(price: number) {
   }
 }
 
-function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void }) {
+function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () => void, onApe: (eth: number) => void }) {
   const { toast } = useToast()
 
   function copyAddressToClipboard() {
@@ -119,60 +142,70 @@ function ClankItem({ c, onSelect }: { c: ClankerWithData, onSelect?: () => void 
   return (
     <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
+        <WithTooltip text={`Trade ${c.name}`}>
         <div className="w-full h-full" onClick={onSelect}>
-        {c.img_url ? (
-          <motion.img
-            src={c.img_url ?? ""}
-            alt=""
-            className="cursor-pointer w-full h-full object-contain"
-            whileHover={{
-              rotate: 5,
-              scale: 0.9,
-              rotateX: 10,
-              rotateY: 10,
-            }}
-          />
-        ) : (
-          <motion.div
-            className="cursor-pointer w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
-            whileHover={{
-              rotate: 5,
-              scale: 0.9,
-              rotateX: 10,
-              rotateY: 10,
-            }}
-          >
-            <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
-          </motion.div>
-        )}
+          {c.img_url ? (
+            <motion.img
+              src={c.img_url ?? ""}
+              alt=""
+              className="cursor-pointer w-full h-full object-contain"
+              whileHover={{
+                rotate: 5,
+                scale: 0.9,
+                rotateX: 10,
+                rotateY: 10,
+              }}
+            />
+          ) : (
+            <motion.div
+              className="cursor-pointer w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
+              whileHover={{
+                rotate: 5,
+                scale: 0.9,
+                rotateX: 10,
+                rotateY: 10,
+              }}
+            >
+              <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
+            </motion.div>
+          )}
         </div>
+        </WithTooltip>
       </div> 
       <div className="flex-grow pl-2">
         <div className="pl-2">
           <div className="flex w-full items-center gap-2">
-            <p className="font-bold text-xl flex-grow">
-              {c.name} (${c.symbol})
-            </p>
+            <WithTooltip text={`Trade ${c.name}`}>
+              <p className="font-bold text-xl flex-grow cursor-pointer" onClick={onSelect}>
+                {c.name} (${c.symbol})
+              </p>
+            </WithTooltip>
             <div className="flex-none flex gap-2">
-            <WithTooltip text="Copy CA">
-              <Button size="icon" className="bg-slate-900 text-white hover:bg-slate-500" onClick={copyAddressToClipboard}>
-                <Clipboard size={16} />
-              </Button>
-            </WithTooltip>
-            <WithTooltip text="View on Clanker">
-              <a href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
-                <Button size="icon" className="bg-slate-900 text-white hover:bg-slate-500">
-                  <ChartNoAxesColumnIncreasing size={16} />
-                </Button>
-              </a>
-            </WithTooltip>
-            <WithTooltip text="View on DexScreener">
-              <a href={`https://dexscreener.com/base/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
-                <Button size="icon" className="bg-slate-900 text-white hover:bg-slate-500">
-                  <ChartCandlestick size={16} />
-                </Button>
-              </a>
-            </WithTooltip>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" className="bg-purple-900 text-white hover:bg-slate-500 text-lg">
+                    🦍
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={onSelect}>💰 Trade {cleanTicker(c.name)}</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onApe(0.01)}>🐠 Ape 0.01 Ξ</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onApe(0.04)}>🐬 Ape 0.04 Ξ</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onApe(0.1)}>🐳 Ape 0.1 Ξ</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <a href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
+                      View on Clanker
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <a href={`https://dexscreener.com/base/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
+                      View on DexScreener
+                    </a>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={copyAddressToClipboard}>Copy CA</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
           <div className="flex gap-4 mt-2 text-lg">
@@ -309,17 +342,27 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
 import { useAccount, useChainId } from "wagmi";
 import { type PriceResponse } from "~/types";
 import { SwapInterface } from "./swap";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 // import QuoteView from "~/components/0xswap/quote";
 // import PriceView from "~/components/0xswap/price";
 
-function BuyModal({ clanker, onOpenChange }: { clanker: ClankerWithData | null, onOpenChange: (visible: boolean) => void }) {
+function BuyModal({ 
+  clanker, 
+  onOpenChange,
+  apeAmount,
+}: { 
+  clanker: ClankerWithData | null, 
+  onOpenChange: (visible: boolean) => void 
+  apeAmount: number | null
+}) {
 
   return (
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Trade {clanker?.name}</DialogTitle>
-          {clanker && <SwapInterface clanker={clanker} />}
+          {clanker && <SwapInterface clanker={clanker} apeAmount={apeAmount} />}
         </DialogHeader>
       </DialogContent>
     </Dialog>
