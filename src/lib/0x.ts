@@ -3,12 +3,7 @@
 import {
   parseUnits,
 } from "viem";
-import { ethers } from "ethers";
-
-const env = {
-  OX_API_KEY: "297fd66f-fb71-4d30-908b-7287e880a970",
-  NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: "https://base-mainnet.g.alchemy.com/v2/Iz4a0uLN_7520Cq2Q8nJAhpYG1s5vji7"
-}
+import { env } from "~/env";
 
 const headers = new Headers({
   "Content-Type": "application/json",
@@ -17,6 +12,42 @@ const headers = new Headers({
 });
 
 const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
+const FEE_BPS = 50 // 0.5%
+
+export async function getQuote(
+  takerAddress: string,
+  tokenAddress: string, 
+  amount: number, 
+  sell: boolean
+) {
+  const sellToken = sell ? tokenAddress : WETH_ADDRESS;
+  const buyToken = sell ? WETH_ADDRESS : tokenAddress;
+  const sellAmount = parseUnits(amount.toString(), 18).toString();
+
+  const quoteParams = new URLSearchParams({
+    chainId: "8453",
+    sellToken: sellToken,
+    buyToken: buyToken,
+    sellAmount: sellAmount,
+    taker: takerAddress,
+    swapFeeRecipient: env.FEE_RECIPIENT,
+    swapFeeBps: FEE_BPS.toString(),
+    swapFeeToken: WETH_ADDRESS,
+    tradeSurplusRecipient: env.FEE_RECIPIENT,
+    slippageBps: "500",
+  });
+
+  const quoteResponse = await fetch(
+    "https://api.0x.org/swap/permit2/quote?" + quoteParams.toString(),
+    {
+      headers,
+    }
+  );
+
+  const quote = await quoteResponse.json();
+  console.log(quote)
+  return quote
+}
 
 export async function getSwapPrice(
   takerAddress: string,
@@ -44,5 +75,6 @@ export async function getSwapPrice(
   );
 
   const price = await priceResponse.json();
+  console.log(price)
   return price
 }
