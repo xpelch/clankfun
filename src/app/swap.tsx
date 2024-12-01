@@ -20,7 +20,7 @@ import { PriceInput } from "~/components/ui/priceinput";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
-const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
+const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 
 function formatUSD(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -59,12 +59,11 @@ export function SwapInterface({
   const sellTokenName = isBuying ? "WETH" : clanker.symbol;
   const buyTokenName = isBuying ? clanker.symbol : "WETH";
 
-  const sellTokenAddress = isBuying ? WETH_ADDRESS : clanker.contract_address as `0x${string}`;
+  const sellTokenAddress = isBuying ? ETH_ADDRESS : clanker.contract_address as `0x${string}`;
 
   const { address } = useAccount()
   const { data: ethBalance, isError: ethBalanceError } = useBalance({
     address,
-    token: WETH_ADDRESS,
   });
   const { data: tokenBalance, isError: tokenBalanceError } = useBalance({
     address,
@@ -97,7 +96,7 @@ export function SwapInterface({
     if (apeAmount > balance) {
       toast({
         title: "Insufficient balance",
-        description: "You do not have enough WETH to make this trade. Please choose a different amount"
+        description: "You do not have enough ETH to make this trade. Please choose a different amount"
       })
     } else {
       toast({
@@ -174,25 +173,26 @@ export function SwapInterface({
       !isBuying
     )
 
-    if (!quote.permit2?.eip712) return
     if (!quote.transaction) return
 
-    console.log("Getting signature")
-    const signature = await signTypedDataAsync(quote.permit2.eip712)
-    const signatureLengthInHex = numberToHex(size(signature), {
-      signed: false,
-      size: 32,
-    });
+    if (quote.permit2) {
+      console.log("Getting signature")
+      const signature = await signTypedDataAsync(quote.permit2.eip712)
+      const signatureLengthInHex = numberToHex(size(signature), {
+        signed: false,
+        size: 32,
+      });
 
-    const transactionData = quote.transaction.data as Hex;
-    const sigLengthHex = signatureLengthInHex as Hex;
-    const sig = signature as Hex;
+      const transactionData = quote.transaction.data as Hex;
+      const sigLengthHex = signatureLengthInHex as Hex;
+      const sig = signature as Hex;
 
-    quote.transaction.data = concat([
-      transactionData,
-      sigLengthHex,
-      sig,
-    ]);
+      quote.transaction.data = concat([
+        transactionData,
+        sigLengthHex,
+        sig,
+      ]);
+    }
 
     setUserShouldApprove(true);
     console.log("Sending transaction")
@@ -256,7 +256,7 @@ export function SwapInterface({
                   onChange={(e) => handleUpdateAmount(parseFloat(e.target.value))}
                 />
                 <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  WETH
+                  ETH
                 </span>
               </div>
               {ethBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(ethBalance.value)}</span>}
@@ -303,7 +303,7 @@ export function SwapInterface({
               {tokenBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(tokenBalance.value)}</span>}
               <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
                 <span>To</span>
-                <span>WETH</span>
+                <span>ETH</span>
               </div>
               <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
                 <PriceInput
@@ -314,7 +314,7 @@ export function SwapInterface({
                   disabled
                 />
                 <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  WETH
+                  ETH
                 </span>
               </div>
             </div>

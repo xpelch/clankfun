@@ -11,7 +11,8 @@ const headers = new Headers({
   "0x-version": "v2",
 });
 
-const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
+// const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
+const WETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 const FEE_BPS = 50 // 0.5%
 
 export async function getQuote(
