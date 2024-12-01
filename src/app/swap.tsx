@@ -1,12 +1,12 @@
 "use client"
 
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
-
-import { useEffect, useState } from "react";
+import { debounce } from 'lodash'; 
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Input } from "~/components/ui/input";
-import { useAccount, useBalance, useReadContract, useSendTransaction, useSignTypedData, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useAccount, useBalance, useCall, useReadContract, useSendTransaction, useSignTypedData, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ethers } from "ethers";
 import {
   concat,
@@ -84,10 +84,32 @@ export function SwapInterface({
     setAmountText(String(newAmount));
   };
 
+  const updateSwapAmount = async () => {
+    console.log("Fetching quote")
+    if (!address || !clanker) return;
+    if (amount <= 0) {
+      setBuyAmount(0);
+      return;
+    }
+    console.log("Fethcing server swap price")
+    const res = await serverFetchSwapPrice(
+      address, 
+      clanker.contract_address, 
+      amount, 
+      !isBuying
+    );
+    if (!res.buyAmount) return;
+
+    console.log("Not canceeled")
+    const buyAmount = parseFloat(ethers.formatEther(res.buyAmount));
+    setBuyAmount(buyAmount);
+    setPriceRes(res);
+  }
+
   useEffect(() => {
-    let cancelled = false;
-    void updateSwapAmount(cancelled);
-    return () => { cancelled = true; }
+    const cancelToken = { cancelled: false };
+    updateSwapAmount();
+    return () => { cancelToken.cancelled = true; }
   }, [amount, isBuying]);
 
   useEffect(() => {
@@ -110,27 +132,6 @@ export function SwapInterface({
       onAped()
     }
   }, [apeAmount, ethBalance])
-
-  async function updateSwapAmount(cancelled: boolean) {
-    if (!address || !clanker || cancelled) return;
-    if (amount <= 0) {
-      setBuyAmount(0);
-      return;
-    }
-    const res = await serverFetchSwapPrice(
-      address, 
-      clanker.contract_address, 
-      amount, 
-      !isBuying
-    );
-    if (!res.buyAmount) return;
-
-    if (!cancelled) {
-      const buyAmount = parseFloat(ethers.formatEther(res.buyAmount));
-      setBuyAmount(buyAmount);
-      setPriceRes(res);
-    }
-  }
 
   const {
     data: hash,
@@ -227,10 +228,17 @@ export function SwapInterface({
     setBuyAmount(0);
   };
 
+  const debouncedUpdateAmount = useCallback(
+    debounce((text: string) => {
+      const parsedAmount = parseFloat(text);
+      setAmount(isNaN(parsedAmount) ? 0 : parsedAmount);
+    }, 500),
+    []
+  );
+
   useEffect(() => {
-    const parsedAmount = parseFloat(amountText);
-    setAmount(isNaN(parsedAmount) ? 0 : parsedAmount);
-  }, [amountText]);
+    debouncedUpdateAmount(amountText);
+  }, [amountText, debouncedUpdateAmount]);
 
   const actionPending = transactionPending || signPending;
 
