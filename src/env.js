@@ -11,7 +11,8 @@ export const env = createEnv({
     NEYNAR_API_KEY: z.string(),
     ALCHEMY_API_KEY: z.string(),
     OX_API_KEY: z.string(),
-    FEE_RECIPIENT: z.string()
+    FEE_RECIPIENT: z.string(),
+    DUNE_API_KEY: z.string(),
   },
 
   /**
@@ -33,7 +34,8 @@ export const env = createEnv({
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: process.env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT,
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     OX_API_KEY: process.env.OX_API_KEY,
-    FEE_RECIPIENT: process.env.FEE_RECIPIENT
+    FEE_RECIPIENT: process.env.FEE_RECIPIENT,
+    DUNE_API_KEY: process.env.DUNE_API_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

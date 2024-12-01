@@ -13,6 +13,7 @@ import { fetchMultiPoolMarketCaps, getEthUsdPrice } from './onchain';
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
 import { getQuote, getSwapPrice } from '~/lib/0x';
+import { getHotClankers } from '~/lib/dune';
 
 const ClankerSchema = z.object({
   id: z.number(),
@@ -46,6 +47,11 @@ export async function serverFetchSwapPrice(userAddress: string, tokenAddress: st
 
 export async function serverEthUSDPrice() {
   return getEthUsdPrice()
+}
+
+export async function serverFetchHotClankers() {
+  const duneRes = await getHotClankers()
+  console.log(duneRes)
 }
 
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {

@@ -17,6 +17,7 @@
     "script": "tsx src/lib/0x.ts"
   },
   "dependencies": {
+    "@duneanalytics/client-sdk": "^0.2.4",
     "@neynar/nodejs-sdk": "^1.71.0",
     "@neynar/react": "^0.9.7",
     "@radix-ui/react-dialog": "^1.1.2",
