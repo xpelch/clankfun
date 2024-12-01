@@ -183,9 +183,8 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
             <div className="flex-none flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button className="bg-purple-800 text-white hover:bg-purple-700">
-                    Trade
-                    <Wallet size={24} />
+                  <Button size={"icon"} className="bg-purple-800 text-white hover:bg-purple-700 flex items-center gap-2">
+                    <img src="/ape.svg" alt="Ape" className="w-6 h-6 opacity-70" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
