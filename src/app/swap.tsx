@@ -42,6 +42,7 @@ export function SwapInterface({
 }) {
 
   const { toast } = useToast()
+  const [amountText, setAmountText] = useState<string>("0.00");
   const [amount, setAmount] = useState<number>(0);
   const [isBuying, setIsBuying] = useState(true);
   const [buyAmount, setBuyAmount] = useState<number>(0);
@@ -80,7 +81,7 @@ export function SwapInterface({
   const handlePercentageChange = (newPercentage: number) => {
     const { eth, token } = balances();
     const newAmount = isBuying ? eth * (newPercentage / 100) : token * (newPercentage / 100);
-    setAmount(newAmount);
+    setAmountText(String(newAmount));
   };
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export function SwapInterface({
         title: "Aping in 🦍",
       })
 
-      setAmount(apeAmount)
+      setAmountText(String(apeAmount))
       setIsBuying(true)
       startSwap(apeAmount, true)
       onAped()
@@ -112,6 +113,10 @@ export function SwapInterface({
 
   async function updateSwapAmount(cancelled: boolean) {
     if (!address || !clanker || cancelled) return;
+    if (amount <= 0) {
+      setBuyAmount(0);
+      return;
+    }
     const res = await serverFetchSwapPrice(
       address, 
       clanker.contract_address, 
@@ -216,17 +221,16 @@ export function SwapInterface({
     startSwap(amount, isBuying);
   }
 
-  const handleUpdateAmount = async (newAmount: number) => {
-    const { eth, token } = balances();
-    const clampedAmount = Math.min(newAmount, isBuying ? eth : token);
-    setAmount(clampedAmount);
-  }
-
   const handleTabSwitch = () => {
     setIsBuying(!isBuying);
-    setAmount(0);
+    setAmountText("0.00");
     setBuyAmount(0);
   };
+
+  useEffect(() => {
+    const parsedAmount = parseFloat(amountText);
+    setAmount(isNaN(parsedAmount) ? 0 : parsedAmount);
+  }, [amountText]);
 
   const actionPending = transactionPending || signPending;
 
@@ -251,14 +255,15 @@ export function SwapInterface({
                 <PriceInput
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
-                  placeholder="google"
-                  value={amount}
-                  onChange={(e) => handleUpdateAmount(parseFloat(e.target.value))}
+                  placeholder="enter amount"
+                  value={amountText}
+                  onChange={(e) => setAmountText(e.target.value)}
                 />
                 <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
                   ETH
                 </span>
               </div>
+              {ethBalance && (amount > parseFloat(ethers.formatEther(ethBalance.value))) && <span className="text-red-500 text-sm">You do not have sufficient funds.</span>}
               {ethBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(ethBalance.value)}</span>}
               <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
                 <span>To</span>
@@ -290,8 +295,8 @@ export function SwapInterface({
                   id="input-15"
                   className="-me-px rounded-e-none shadow-none"
                   placeholder="google"
-                  value={amount}
-                  onChange={(e) => setAmount(parseFloat(e.target.value))}
+                  value={amountText}
+                  onChange={(e) => setAmountText(e.target.value)}
                 />
                 <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
                   <div className="flex gap-2 items-center">
@@ -300,6 +305,7 @@ export function SwapInterface({
                   </div>
                 </span>
               </div>
+              {(tokenBalance && amount > parseFloat(ethers.formatEther(tokenBalance.value))) && <span className="text-red-500 text-sm">You do not have sufficient funds</span>}
               {tokenBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(tokenBalance.value)}</span>}
               <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
                 <span>To</span>
