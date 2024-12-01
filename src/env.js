@@ -13,6 +13,8 @@ export const env = createEnv({
     OX_API_KEY: z.string(),
     FEE_RECIPIENT: z.string(),
     DUNE_API_KEY: z.string(),
+    DATABASE_URL: z.string(),
+    CRON_SECRET: z.string(),
   },
 
   /**
@@ -36,6 +38,8 @@ export const env = createEnv({
     OX_API_KEY: process.env.OX_API_KEY,
     FEE_RECIPIENT: process.env.FEE_RECIPIENT,
     DUNE_API_KEY: process.env.DUNE_API_KEY,
+    DATABASE_URL: process.env.DATABASE_URL,
+    CRON_SECRET: process.env.CRON_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

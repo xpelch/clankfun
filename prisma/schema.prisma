@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clanker {
+  id              Int      @id
+  created_at      DateTime
+  tx_hash         String
+  contract_address String  @unique
+  requestor_fid   Int
+  name            String
+  symbol          String
+  img_url         String?
+  pool_address    String
+  cast_hash       String
+  type            String?
+  page            Int
+
+  @@index([contract_address])
+}
