@@ -15,6 +15,8 @@ import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxe
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
+
 
 type NavPage = "latest" | "hot" | "top"
 
@@ -526,15 +528,28 @@ function BuyModal({
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle>Trade {clanker?.name}</DialogTitle>
-          {clanker && 
-            <SwapInterface 
-              clanker={clanker} 
-              apeAmount={apeAmount} 
-              onAped={onAped}
-              onSwapComplete={() => onOpenChange(false)}
-            />}
+          <VisuallyHidden.Root>
+            <DialogTitle>Trade {clanker?.name}</DialogTitle>
+          </VisuallyHidden.Root>
         </DialogHeader>
+        <div className="flex gap-4 items-center text-xl mb-2">
+          {clanker?.img_url && <img src={clanker?.img_url} alt="" className="w-12 h-12 rounded-full" />}
+          <div>
+            <p className="md:text-2xl">
+              trade <span className="font-bold">{clanker?.name}</span>
+            </p>
+            <p className="text-white/50 text-xs md:text-sm">
+              Swaps routed through 0x protocol
+            </p>
+          </div>
+        </div>
+        {clanker && 
+          <SwapInterface 
+            clanker={clanker} 
+            apeAmount={apeAmount} 
+            onAped={onAped}
+            onSwapComplete={() => onOpenChange(false)}
+          />}
       </DialogContent>
     </Dialog>
   )

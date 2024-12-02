@@ -249,10 +249,10 @@ export function SwapInterface({
     <div className="flex flex-col gap-4">
       <Tabs defaultValue="buy" className="w-full">
         <TabsList>
-          <TabsTrigger value="buy" onClick={handleTabSwitch}>
+          <TabsTrigger value="buy" onClick={handleTabSwitch} className="w-20">
             Buy
           </TabsTrigger>
-          <TabsTrigger value="sell" onClick={handleTabSwitch}>
+          <TabsTrigger value="sell" onClick={handleTabSwitch} className="w-20">
             Sell
           </TabsTrigger>
         </TabsList>
