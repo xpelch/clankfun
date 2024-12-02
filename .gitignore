@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+scripts_private
 
 # testing
 /coverage

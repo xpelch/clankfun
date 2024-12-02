@@ -72,7 +72,7 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
             id: clanker.id,
             created_at: new Date(clanker.created_at),
             tx_hash: clanker.tx_hash,
-            contract_address: clanker.contract_address,
+            contract_address: clanker.contract_address.toLowerCase(),
             requestor_fid: clanker.requestor_fid,
             name: clanker.name,
             symbol: clanker.symbol,
@@ -103,15 +103,15 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
 }
 
 // Internal function used to test that every output from the API is valid under the schema
-async function debugTestSchema() {
-  let page = 1
-  while(true) {
-    const data = await clankerListAPI('asc', page)
-    console.log("Page", page, data.data.length)
-    page++
-    if (!data.hasMore) break
-  }
-}
+// async function debugTestSchema() {
+//   let page = 1
+//   while(true) {
+//     const data = await clankerListAPI('asc', page)
+//     console.log("Page", page, data.data.length)
+//     page++
+//     if (!data.hasMore) break
+//   }
+// }
 
 async function clankerListAPI(sort: 'desc' | 'asc', page = 1): Promise<APIPage> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=${sort}&page=${page}&type=all`);

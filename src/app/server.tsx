@@ -14,6 +14,7 @@ import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
 import { getQuote, getSwapPrice } from '~/lib/0x';
 import { getHotClankers } from '~/lib/dune';
+import { db } from '~/lib/db';
 
 const ClankerSchema = z.object({
   id: z.number(),
@@ -49,9 +50,50 @@ export async function serverEthUSDPrice() {
   return getEthUsdPrice()
 }
 
-export async function serverFetchHotClankers() {
-  const duneRes = await getHotClankers()
-  console.log(duneRes)
+export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
+  const hotClankers = await getHotClankers()
+
+  const dbClankers = await db.clanker.findMany({
+    where: {
+      contract_address: {
+        in: hotClankers.map(c => c.contract_address.toLowerCase())
+      },
+      type: {
+        not: null
+      }
+    }
+  })
+
+  console.log(dbClankers.map((c) => `${c.name} - ${c.type}`).join('\n'))
+
+  if (dbClankers.length === 0) {
+    return []
+  }
+
+  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
+  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
+  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
+
+  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
+  const casts = await fetchCastsNeynar(castHashes)
+
+  return dbClankers.map((clanker, i) => {
+    return {
+      id: clanker.id,
+      created_at: clanker.created_at.toString(),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address,
+      requestor_fid: clanker.requestor_fid,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type ?? "unknown",
+      marketCap: mcaps[clanker.pool_address] ?? -1,
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
+    }
+  })
 }
 
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
@@ -84,7 +126,7 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
     return parsed.data;
   }) as Clanker[];
 
-  const mcaps = await fetchMultiPoolMarketCaps(parsedData.map(d => d.pool_address))
+  const mcaps = await fetchMultiPoolMarketCaps(parsedData.map(d => d.pool_address), parsedData.map(d => d.contract_address))
   const casts = await fetchCastsNeynar(parsedData.map(d => d.cast_hash))
   const clankersWithMarketCap = parsedData.map((clanker, i) => {
     return { 

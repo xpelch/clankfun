@@ -6,7 +6,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchClankers } from "./server";
+import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -25,12 +25,17 @@ function shareUrl() {
 }
 
 function cleanText(text: string) {
-  return text.split(" ").map((word) => {
+  const cleaned = text.split(" ").map((word) => {
     if (word.length > 15) {
       return word.slice(0, 15) + "...";
     }
     return word;
   }).join(" ");
+
+  if (cleaned.length > 200) {
+    return cleaned.slice(0, 200) + "...";
+  }
+  return cleaned;
 }
 
 function cleanTicker(text: string) {
@@ -51,9 +56,12 @@ export function App() {
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
-      const init = await serverFetchClankers();
-      setClankers(init.data);
-      setPage(init.lastPage);
+      // const init = await serverFetchClankers();
+      // setClankers(init.data);
+      // setPage(init.lastPage);
+      const init = await serverFetchHotClankers()
+      setClankers(init);
+      setPage(1)
       setRefreshing(false);
     };
 

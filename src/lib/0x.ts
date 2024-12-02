@@ -7,13 +7,12 @@ import { env } from "~/env";
 
 const headers = new Headers({
   "Content-Type": "application/json",
-  "0x-api-key": "297fd66f-fb71-4d30-908b-7287e880a970",
+  "0x-api-key": env.OX_API_KEY,
   "0x-version": "v2",
 });
 
-// const WETH_ADDRESS = "0x4200000000000000000000000000000000000006"
 const WETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
-const FEE_BPS = 50 // 0.5%
+const FEE_BPS = 50 // 0.5% of the trade (total 1.5% incl. clanker's fee)
 
 export async function getQuote(
   takerAddress: string,
@@ -32,9 +31,9 @@ export async function getQuote(
     sellAmount: sellAmount,
     taker: takerAddress,
     swapFeeRecipient: env.FEE_RECIPIENT,
+    tradeSurplusRecipient: env.FEE_RECIPIENT,
     swapFeeBps: FEE_BPS.toString(),
     swapFeeToken: WETH_ADDRESS,
-    tradeSurplusRecipient: env.FEE_RECIPIENT,
     slippageBps: "500",
   });
 

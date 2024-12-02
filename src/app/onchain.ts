@@ -10,6 +10,7 @@ import { Alchemy, Network, Utils } from 'alchemy-sdk';
 const provider = new ethers.JsonRpcProvider(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT);
 
 import { BigNumber } from '@ethersproject/bignumber';
+import { erc20Abi } from 'viem';
 
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
 const settings = {
@@ -34,50 +35,42 @@ function calculatePrice(sqrtPriceX96: bigint, decimalsToken0: number, decimalsTo
     return price * decimalAdjustment;
 }
 
-function calculateMarketCap(
-    sqrtPriceX96: bigint,
-    liquidity: bigint,
-    ethPriceUsd: number,
-    decimalsToken0 = 18, // ETH typically has 18 decimals
-    decimalsToken1 = 5  // Most ERC20s have 18 decimals
-): number {
-    const price = calculatePrice(sqrtPriceX96, decimalsToken0, decimalsToken1);
-    
-    // Calculate total value in the pool
-    // Note: This is a simplified calculation and might need adjustment based on the price range
-    const totalValue = Number(liquidity) * price;
-    const totalValueUSD = totalValue * ethPriceUsd;
-    
-    return totalValueUSD;
-}
-
-async function fetchSinglePoolMarketCap(poolAddress: string, ethPrice: number): Promise<number> {
-  const poolContract = new ethers.Contract(
-    poolAddress,
-    IUniswapV3PoolABI.abi,
-    provider
-  ) as any;
-
+async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<number> {
   try {
-    const [slot0, liquidity] = await Promise.all([
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider) as any
+    const poolContract = new ethers.Contract(
+      poolAddress,
+      IUniswapV3PoolABI.abi,
+      provider
+    ) as any;
+
+    const [slot0, liquidity, decimals, supply] = await Promise.all([
       poolContract.slot0(),
       poolContract.liquidity(),
+      tokenContract.decimals(),
+      tokenContract.totalSupply()
     ]);
 
-    return calculateMarketCap(slot0.sqrtPriceX96 as bigint, liquidity as bigint, ethPrice);
-  } catch (error) {
-    console.error(`Error fetching data for pool ${poolAddress}:`, error);
+    const sqrtPriceX96 = slot0.sqrtPriceX96;
+    const intDecimals = parseInt(decimals.toString());
+    const intSupply = parseInt(ethers.formatUnits(supply))
+    const price = calculatePrice(sqrtPriceX96 as bigint, 18, intDecimals);
+    const priceUsd = price * ethPrice;
+    const marketCap = priceUsd * intSupply;
+    return marketCap
+  } catch(e: any) {
+    console.log(`Error fetching market cap for pool ${poolAddress}: ${e}`);
     return -1;
   }
 }
 
-export async function fetchMultiPoolMarketCaps(poolAddresses: string[]): Promise<Record<string, number>> {
+export async function fetchMultiPoolMarketCaps(poolAddresses: string[], tokenAddress: string[]): Promise<Record<string, number>> {
   // Get ETH price once for all calculations
   const ethPrice = await getEthUsdPrice();
   
   // Fetch all pool data in parallel
-  const marketCapPromises = poolAddresses.map(address => 
-    fetchSinglePoolMarketCap(address, ethPrice)
+  const marketCapPromises = poolAddresses.map((address, i) => 
+    fetchSinglePoolMarketCap(tokenAddress[i]!, address, ethPrice)
   );
   
   const marketCaps = await Promise.all(marketCapPromises);
