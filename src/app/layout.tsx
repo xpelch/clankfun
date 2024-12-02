@@ -19,6 +19,16 @@ export const metadata: Metadata = {
   title: "clank.fun",
   description: "latest clanker memecoins on Farcaster",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "clank.fun - latest clanker memecoins on Farcaster",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -13,7 +13,7 @@ import { fetchMultiPoolMarketCaps, getEthUsdPrice } from './onchain';
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
 import { getQuote, getSwapPrice } from '~/lib/0x';
-import { getHotClankers } from '~/lib/dune';
+import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 
 const ClankerSchema = z.object({
@@ -51,20 +51,76 @@ export async function serverEthUSDPrice() {
 }
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
-  const hotClankers = await getHotClankers()
+  const hotClankers = await getHotClankersCA()
 
   const dbClankers = await db.clanker.findMany({
     where: {
       contract_address: {
-        in: hotClankers.map(c => c.contract_address.toLowerCase())
+        in: hotClankers.map(c => c.toLowerCase())
       },
-      type: {
-        not: null
-      }
+    },
+    orderBy: {
+      contract_address: 'asc'
     }
   })
 
-  console.log(dbClankers.map((c) => `${c.name} - ${c.type}`).join('\n'))
+  // Sort dbClankers in the same order as hotClankers
+  dbClankers.sort((a, b) => {
+    const aIndex = hotClankers.findIndex(c => c.toLowerCase() === a.contract_address)
+    const bIndex = hotClankers.findIndex(c => c.toLowerCase() === b.contract_address)
+    return aIndex - bIndex
+  })
+
+  if (dbClankers.length === 0) {
+    return []
+  }
+
+  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
+  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
+  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
+
+  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
+  const casts = await fetchCastsNeynar(castHashes)
+
+  return dbClankers.map((clanker, i) => {
+    return {
+      id: clanker.id,
+      created_at: clanker.created_at.toString(),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address,
+      requestor_fid: clanker.requestor_fid,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type ?? "unknown",
+      marketCap: mcaps[clanker.pool_address] ?? -1,
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
+    }
+  })
+}
+
+export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
+  const hotClankers = await getTopClankersCA()
+
+  const dbClankers = await db.clanker.findMany({
+    where: {
+      contract_address: {
+        in: hotClankers.map(c => c.toLowerCase())
+      },
+    },
+    orderBy: {
+      contract_address: 'asc'
+    }
+  })
+
+  // Sort dbClankers in the same order as hotClankers
+  dbClankers.sort((a, b) => {
+    const aIndex = hotClankers.findIndex(c => c.toLowerCase() === a.contract_address)
+    const bIndex = hotClankers.findIndex(c => c.toLowerCase() === b.contract_address)
+    return aIndex - bIndex
+  })
 
   if (dbClankers.length === 0) {
     return []
@@ -101,7 +157,6 @@ export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
   let lastPage = page;
 
   while (clankers.length < 6) {
-    console.log(`Fetching page ${page}`);
     const newClankers = await fetchPage(page);
     clankers = [...clankers, ...newClankers];
     lastPage = page;

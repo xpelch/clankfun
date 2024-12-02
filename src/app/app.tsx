@@ -6,7 +6,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers } from "./server";
+import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -15,6 +15,8 @@ import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxe
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
+
+type NavPage = "latest" | "hot" | "top"
 
 function shareUrl() {
   const url = new URL("https://warpcast.com/~/compose")
@@ -45,7 +47,23 @@ function cleanTicker(text: string) {
   return text
 }
 
+
 export function App() {
+  const [view, setView] = useState<NavPage>("hot");
+
+  return (
+    <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-900 p-2 lg:p-6">
+      <div className="w-full">
+        <Nav refreshing={false} view={view} setView={setView} />
+        <p className="py-2">
+        </p>
+        {view == "latest" ? <LatestFeed /> : view == "top" ? <TopFeed/> : <HotFeed />}
+      </div>
+    </div>
+  );
+}
+
+export function LatestFeed() {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -56,12 +74,9 @@ export function App() {
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
-      // const init = await serverFetchClankers();
-      // setClankers(init.data);
-      // setPage(init.lastPage);
-      const init = await serverFetchHotClankers()
-      setClankers(init);
-      setPage(1)
+      const init = await serverFetchClankers();
+      setClankers(init.data);
+      setPage(init.lastPage);
       setRefreshing(false);
     };
 
@@ -83,35 +98,142 @@ export function App() {
   }
 
   return (
-    <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-black p-2 lg:p-6">
-      <div className="w-full">
-        <Nav refreshing={refreshing} />
-        <p className="py-2">
-        </p>
-        {clankers.length === 0 && (
-          <Loader />
-        )}
-        <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {clankers.map((item, i) => (
-            <ClankItem 
-              key={i} 
-              c={item} 
-              onSelect={() => setDetailClanker(item)} 
-              onApe={(eth) => onApe(item, eth)}
-            />
-          ))}
-        </motion.div>
-        <div className="w-full flex lg:flex-row flex-col gap-4">
-          <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
-            Load more
+    <div className="w-full">
+      {clankers.length === 0 && (
+        <Loader />
+      )}
+      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {clankers.map((item, i) => (
+          <ClankItem 
+            key={i} 
+            c={item} 
+            onSelect={() => setDetailClanker(item)} 
+            onApe={(eth) => onApe(item, eth)}
+          />
+        ))}
+      </motion.div>
+      <div className="w-full flex lg:flex-row flex-col gap-4 mt-4">
+        <Button className="w-full" onClick={fetchMore} disabled={refreshing}>
+          Load more
+        </Button>
+        <a href={shareUrl()} className="w-full">
+          <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
+            <Share size={16} className="mr-2" />
+            Love clank.fun? Share it on Warpcast!
           </Button>
-          <a href={shareUrl()} className="w-full">
-            <Button variant="secondary" className="w-full mb-4" disabled={refreshing}>
-              <Share size={16} className="mr-2" />
-              Love clank.fun? Share it on Warpcast!
-            </Button>
-          </a>
-        </div>
+        </a>
+      </div>
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
+        apeAmount={apeAmount}
+        onAped={() => setApeAmount(null)}
+      />
+    </div>
+  );
+}
+
+export function TopFeed() {
+  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [apeAmount, setApeAmount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchClankers = async () => {
+      setRefreshing(true);
+      const data = await serverFetchTopClankers();
+      setClankers(data);
+      setRefreshing(false);
+    };
+
+    void fetchClankers();
+  }, []);
+
+  function onApe(clanker: ClankerWithData, eth: number) {
+    setApeAmount(eth)
+    setDetailClanker(clanker)
+  }
+
+  return (
+    <div className="w-full">
+      {clankers.length === 0 && (
+        <Loader />
+      )}
+      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {clankers.map((item, i) => (
+          <ClankItem 
+            key={i} 
+            c={item} 
+            onSelect={() => setDetailClanker(item)} 
+            onApe={(eth) => onApe(item, eth)}
+          />
+        ))}
+      </motion.div>
+      <div className="w-full flex lg:flex-row flex-col gap-4 mt-4">
+        <a href={shareUrl()} className="w-full">
+          <Button  className="w-full mb-4" disabled={refreshing}>
+            <Share size={16} className="mr-2" />
+            Love clank.fun? Share it on Warpcast!
+          </Button>
+        </a>
+      </div>
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
+        apeAmount={apeAmount}
+        onAped={() => setApeAmount(null)}
+      />
+    </div>
+  );
+}
+
+export function HotFeed() {
+  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [apeAmount, setApeAmount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchClankers = async () => {
+      setRefreshing(true);
+      const data = await serverFetchHotClankers();
+      setClankers(data);
+      setRefreshing(false);
+    };
+
+    void fetchClankers();
+  }, []);
+
+  function onApe(clanker: ClankerWithData, eth: number) {
+    setApeAmount(eth)
+    setDetailClanker(clanker)
+  }
+
+  return (
+    <div className="w-full">
+      {clankers.length === 0 && (
+        <Loader />
+      )}
+      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {clankers.map((item, i) => (
+          <ClankItem 
+            key={i} 
+            c={item} 
+            onSelect={() => setDetailClanker(item)} 
+            onApe={(eth) => onApe(item, eth)}
+          />
+        ))}
+      </motion.div>
+      <div className="w-full flex lg:flex-row flex-col gap-4 mt-4">
+        <a href={shareUrl()} className="w-full">
+          <Button  className="w-full mb-4" disabled={refreshing}>
+            <Share size={16} className="mr-2" />
+            Love clank.fun? Share it on Warpcast!
+          </Button>
+        </a>
       </div>
       <BuyModal 
         clanker={detailClanker} 
@@ -148,7 +270,7 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
   }
 
   return (
-    <div className="w-full flex flex-col md:flex-row p-4 bg-black rounded">
+    <div className="w-full flex flex-col md:flex-row p-4 bg-slate-950 rounded">
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
         <WithTooltip text={`Trade ${c.name}`}>
         <div className="w-full h-full" onClick={onSelect}>
@@ -191,9 +313,17 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
             <div className="flex-none flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button size={"icon"} className="bg-purple-800 text-white hover:bg-purple-700 flex items-center gap-2">
-                    <img src="/ape.svg" alt="Ape" className="w-6 h-6 opacity-70" />
-                  </Button>
+                  <motion.div
+                    whileHover={{
+                      scale: 1.2,
+                      rotate: -10,
+                    }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Button size={"icon"} className="bg-purple-800 text-white hover:bg-purple-700 flex items-center gap-2">
+                      <img src="/ape.svg" alt="Ape" className="w-6 h-6 opacity-70" />
+                    </Button>
+                  </motion.div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={onSelect}>💰 Trade {cleanTicker(c.name)}</DropdownMenuItem>
@@ -267,23 +397,48 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
 }
 
 
-function Nav({ refreshing }: { refreshing: boolean }) {
+function Nav({ refreshing, view, setView }: { refreshing: boolean, view: NavPage, setView: (view: NavPage) => void }) {
   return (
-    <nav className="flex items-center gap-4 mb-2 text-white font-bold text-2xl">
-      <div className="flex-grow flex flex-row gap-2 items-center">
-        <Logo />
-        <div className="flex-col">
-          <h1 className="text-xl">
-            clank.fun
-          </h1>
-          <p className="text-xs font-muted-foreground hidden md:block">
-            the latest clanker memecoins on Farcaster
-          </p>
+    <nav className="w-full flex flex-col gap-2 sticky top-0 bg-slate-900 pb-2 z-[9000]">
+      <div className="flex items-center gap-4 md:mb-4 text-white font-bold text-2xl">
+        <div className="flex-grow flex flex-row gap-2 items-center">
+          <Logo />
+          <div className="flex-col">
+            <h1 className="text-xl">
+              clank.fun
+            </h1>
+            <p className="text-xs font-muted-foreground hidden md:block">
+              the latest clanker memecoins on Farcaster
+            </p>
+          </div>
+        </div>
+        <CastButtonDialog refreshing={refreshing} />
+        <div className="text-sm flex-none">
+          <ConnectKitButton />
         </div>
       </div>
-      <CastButtonDialog refreshing={refreshing} />
-      <div className="text-sm flex-none">
-        <ConnectKitButton />
+      <div className="w-full flex gap-2 max-w-[400px]">
+        <Button
+          variant="outline"
+          className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+          onClick={() => setView("hot")}
+        >
+          Hot 🔥
+        </Button>
+        <Button
+          variant="outline"
+          className={`flex-grow ${view === "top" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+          onClick={() => setView("top")}
+        >
+          Top 🚀
+        </Button>
+        <Button
+          variant="outline"
+          className={`flex-grow ${view === "latest" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+          onClick={() => setView("latest")}
+        >
+          Recent ⏰
+        </Button>
       </div>
     </nav>
   )
@@ -512,11 +667,9 @@ function AnonCast({ cast, isParent }: { cast: CastWithInteractions, isParent?: b
         display: "flex",
         flexDirection: "column",
         gap: "8px",
-        backgroundColor: "black",
         padding: "10px",
         borderRadius: "5px",
         marginBottom: "10px",
-        boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
         width: "100%",
       }: { width: "100%"}} className="w-full">
         {parent && (
