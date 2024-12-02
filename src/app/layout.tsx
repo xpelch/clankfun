@@ -15,19 +15,36 @@ const firaCode = Poppins({
   variable: "--font-fira-code",
 });
 
+const APP_NAME = "clank.fun";
+const APP_DEFAULT_TITLE = "clank.fun";
+const APP_TITLE_TEMPLATE = "%s - clank.fun";
+const APP_DESCRIPTION = "find and trade clanker memecoins";
+
 export const metadata: Metadata = {
-  title: "clank.fun",
-  description: "latest clanker memecoins on Farcaster",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  applicationName: APP_NAME,
+  title: {
+    default: APP_DEFAULT_TITLE,
+    template: APP_TITLE_TEMPLATE,
+  },
+  description: APP_DESCRIPTION,
   openGraph: {
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: "clank.fun - latest clanker memecoins on Farcaster",
-      },
-    ],
+    type: "website",
+    siteName: APP_NAME,
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+    images: ['https://clank.fun/og.png'],
+  },
+  twitter: {
+    card: "summary",
+    title: {
+      default: APP_DEFAULT_TITLE,
+      template: APP_TITLE_TEMPLATE,
+    },
+    description: APP_DESCRIPTION,
+    images: ['https://clank.fun/og.png'],
   },
 };
 
