@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
-    "script": "tsx scripts_private/mcap.ts"
+    "script": "tsx scripts_private/message.ts"
   },
   "dependencies": {
     "@duneanalytics/client-sdk": "^0.2.4",

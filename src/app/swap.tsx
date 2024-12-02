@@ -155,14 +155,14 @@ export function SwapInterface({
     }
     if (receipt) {
       toast({
-        title: "Swap complete! 👌",
+        title: "Clanked! 💰 👌",
         description: "Your transaction was successful.",
       })
       onSwapComplete()
     }
     if (waitingError) {
       toast({
-        title: "Swap failed 👎",
+        title: "Failed to clank 👎",
         description: "Your transaction has failed. Please try again.",
       })
     }
