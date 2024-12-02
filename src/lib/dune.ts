@@ -1,31 +1,39 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { DuneClient } from "@duneanalytics/client-sdk";
+import { Redis } from "ioredis";
 import { env } from "~/env";
 
 const dune = new DuneClient(env.DUNE_API_KEY);
+const redis = new Redis(env.REDIS_URL);
 
-type DuneHotClanker = {
-  contract_address: string;
-  creation_time: string;
-  market_cap_usd: number;
-  ratio: number;
-  symbol: string;
-  total_volume_usd: number;
+const CACHE_EXPIRATION_SECONDS = 3600; // 1 hour
+
+async function getCachedOrFetchFromDune(queryId: number, cacheKey: string): Promise<string[]> {
+  const cachedResult = await redis.get(cacheKey);
+  if (cachedResult) {
+    console.log(`Cache hit for ${cacheKey}`);
+    return JSON.parse(cachedResult);
+  }
+
+  const query_result = await dune.getLatestResult({ queryId });
+  const rows = query_result.result?.rows;
+  if (!rows) {
+    throw new Error("Failed to query dune");
+  }
+
+  const contractAddresses = rows
+    .filter((r) => r.contract_address !== null)
+    .map((r) => r.contract_address) as string[];
+
+  await redis.set(cacheKey, JSON.stringify(contractAddresses), "EX", CACHE_EXPIRATION_SECONDS);
+  return contractAddresses;
 }
 
 export async function getHotClankersCA(): Promise<string[]> {
-  const query_result = await dune.getLatestResult({queryId: 4358090});
-  const rows = query_result.result?.rows
-  if (!rows) {
-    throw new Error("Failed to query dune")
-  }
-  return rows.filter((r) => r.contract_address !== null).map(r => r.contract_address) as string[]
+  return getCachedOrFetchFromDune(4358090, "hot_clankers");
 }
 
 export async function getTopClankersCA(): Promise<string[]> {
-  const query_result = await dune.getLatestResult({queryId: 4358063});
-  const rows = query_result.result?.rows
-  if (!rows) {
-    throw new Error("Failed to query dune")
-  }
-  return rows.filter((r) => r.contract_address !== null).map(r => r.contract_address) as string[]
+  return getCachedOrFetchFromDune(4358063, "top_clankers");
 }

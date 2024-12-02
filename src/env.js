@@ -15,6 +15,7 @@ export const env = createEnv({
     DUNE_API_KEY: z.string(),
     DATABASE_URL: z.string(),
     CRON_SECRET: z.string(),
+    REDIS_URL: z.string(),
   },
 
   /**
@@ -40,6 +41,7 @@ export const env = createEnv({
     DUNE_API_KEY: process.env.DUNE_API_KEY,
     DATABASE_URL: process.env.DATABASE_URL,
     CRON_SECRET: process.env.CRON_SECRET,
+    REDIS_URL: process.env.REDIS_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
