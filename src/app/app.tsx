@@ -399,7 +399,7 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
 
 function Nav({ refreshing, view, setView }: { refreshing: boolean, view: NavPage, setView: (view: NavPage) => void }) {
   return (
-    <nav className="w-full flex flex-col gap-2 sticky top-0 bg-slate-900 pb-2 z-[9000]">
+    <nav className="w-full flex flex-col gap-2 sticky top-0 bg-slate-900 pb-2 z-[9]">
       <div className="flex items-center gap-4 md:mb-4 text-white font-bold text-2xl">
         <div className="flex-grow flex flex-row gap-2 items-center">
           <Logo />
@@ -532,6 +532,7 @@ function BuyModal({
               clanker={clanker} 
               apeAmount={apeAmount} 
               onAped={onAped}
+              onSwapComplete={() => onOpenChange(false)}
             />}
         </DialogHeader>
       </DialogContent>

@@ -34,10 +34,12 @@ function formatUSD(amount: number) {
 export function SwapInterface({ 
   clanker, 
   apeAmount, 
+  onSwapComplete,
   onAped
 }: { 
   clanker: ClankerWithData, 
   apeAmount: number | null 
+  onSwapComplete: () => void
   onAped: () => void
 }) {
 
@@ -147,19 +149,20 @@ export function SwapInterface({
   useEffect(() => {
     if (waitingForReceipt) {
       toast({
-        title: "Transaction pending",
+        title: "Swapping...",
         description: "Your transaction is being processed.",
       });
     }
     if (receipt) {
       toast({
-        title: "Success!",
+        title: "Swap complete! 👌",
         description: "Your transaction was successful.",
       })
+      onSwapComplete()
     }
     if (waitingError) {
       toast({
-        title: "Failed",
+        title: "Swap failed 👎",
         description: "Your transaction has failed. Please try again.",
       })
     }
