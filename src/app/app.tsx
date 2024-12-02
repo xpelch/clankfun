@@ -570,9 +570,9 @@ function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>clank.fun is the unofficial clanker UI</DialogTitle>
+          <DialogTitle>clank.fun is home of memecoins on Base</DialogTitle>
           <DialogDescription>
-            I (@nt) didn&apos;t like the official clanker UI built by proxy (it&apos;s not their fault - they&apos;re dealing with bigger problems than a nice website rn). So I built a better one. It uses the clanker APIs to fetch the latest tickers, and also fetches the market cap and farcaster post engagement. You can use it to hunt the latest clanker coins. 
+            clank.fun is pumpfun for Base meme coins deployed with clanker. browse the hottest clankers and trade in seconds! $CLANKFUN is the official token of clank.fun
           </DialogDescription>
           <ul className="mt-10">
             <li><a href="https://clanker.world/" target="_blank" rel="noopener noreferrer">visit the official Clanker site</a></li>
