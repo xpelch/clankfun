@@ -51,7 +51,7 @@ function cleanTicker(text: string) {
 
 
 export function App() {
-  const [view, setView] = useState<NavPage>("hot");
+  const [view, setView] = useState<NavPage>("top");
 
   return (
     <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-900 p-2 lg:p-6">
@@ -422,17 +422,17 @@ function Nav({ refreshing, view, setView }: { refreshing: boolean, view: NavPage
       <div className="w-full flex gap-2 max-w-[400px]">
         <Button
           variant="outline"
-          className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
-          onClick={() => setView("hot")}
-        >
-          Hot 🔥
-        </Button>
-        <Button
-          variant="outline"
           className={`flex-grow ${view === "top" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
           onClick={() => setView("top")}
         >
           Top 🚀
+        </Button>
+        <Button
+          variant="outline"
+          className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+          onClick={() => setView("hot")}
+        >
+          Hot 🔥
         </Button>
         <Button
           variant="outline"
