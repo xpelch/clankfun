@@ -333,11 +333,11 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
                   <DropdownMenuItem onClick={() => onApe(0.04)}>🐬 Ape 0.04 Ξ</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onApe(0.1)}>🐳 Ape 0.1 Ξ</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  {/* <DropdownMenuItem>
                     <a href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
                       View on Clanker
                     </a>
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem>
                     <a href={`https://dexscreener.com/base/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
                       View on DexScreener
