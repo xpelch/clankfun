@@ -78,9 +78,8 @@ async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: strin
       provider
     ) as any;
 
-    const [slot0, liquidity, decimals, supply] = await Promise.all([
+    const [slot0, decimals, supply] = await Promise.all([
       poolContract.slot0(),
-      poolContract.liquidity(),
       tokenContract.decimals(),
       tokenContract.totalSupply()
     ]);

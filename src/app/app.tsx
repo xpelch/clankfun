@@ -106,6 +106,17 @@ function SearchResults({ query }: { query: string }) {
     setDetailClanker(clanker)
   }
 
+  const { address } = useAccount()
+  const [balances, setBalances] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    async function checkBalance() {
+      const balances = await serverFetchBalance(address)
+      setBalances(balances)
+    }
+    void checkBalance()
+  }, [address])
+
   return (
     <div className="w-full">
       {searching && (
@@ -123,6 +134,7 @@ function SearchResults({ query }: { query: string }) {
             c={item} 
             onSelect={() => setDetailClanker(item)} 
             onApe={(eth) => onApe(item, eth)}
+            balance={balances[item.contract_address]}
           />
         ))}
       </motion.div>
@@ -145,8 +157,6 @@ function SearchResults({ query }: { query: string }) {
 }
 
 export function LatestFeed() {
-  const { address } = useAccount()
-
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -180,6 +190,17 @@ export function LatestFeed() {
     setDetailClanker(clanker)
   }
 
+  const { address } = useAccount()
+  const [balances, setBalances] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    async function checkBalance() {
+      const balances = await serverFetchBalance(address)
+      setBalances(balances)
+    }
+    void checkBalance()
+  }, [address])
+
   return (
     <div className="w-full">
       {clankers.length === 0 && (
@@ -192,7 +213,7 @@ export function LatestFeed() {
             c={item} 
             onSelect={() => setDetailClanker(item)} 
             onApe={(eth) => onApe(item, eth)}
-            // balance={balances[item.contract_address]}
+            balance={balances[item.contract_address]}
           />
         ))}
       </motion.div>
@@ -292,6 +313,17 @@ export function HotFeed() {
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
+  const { address } = useAccount()
+  const [balances, setBalances] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    async function checkBalance() {
+      const balances = await serverFetchBalance(address)
+      setBalances(balances)
+    }
+    void checkBalance()
+  }, [address])
+
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
@@ -320,6 +352,7 @@ export function HotFeed() {
             c={item} 
             onSelect={() => setDetailClanker(item)} 
             onApe={(eth) => onApe(item, eth)}
+            balance={balances[item.contract_address]}
           />
         ))}
       </motion.div>
@@ -507,9 +540,6 @@ function ClankItem({ c, onSelect, onApe, balance }: { c: ClankerWithData, onSele
         )}
       </div>
     </div>
-    // <pre className="border-white border-2 rounded p-4">
-    //   {JSON.stringify(item, null, 2)}
-    // </pre>
   )
 }
 
