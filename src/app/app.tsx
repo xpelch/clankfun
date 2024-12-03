@@ -5,20 +5,20 @@
 
 "use client"
 
-import { useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers } from "./server";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Share, Users, Wallet, Zap } from "lucide-react";
+import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 
 
-type NavPage = "latest" | "hot" | "top"
+type NavPage = "latest" | "hot" | "top" | "search"
 
 function shareUrl() {
   const url = new URL("https://warpcast.com/~/compose")
@@ -52,15 +52,89 @@ function cleanTicker(text: string) {
 
 export function App() {
   const [view, setView] = useState<NavPage>("top");
+  const [searchQuery, setSearchQuery] = useState<string>("")
+
+  let feed
+  if (view === "search") {
+    feed = <SearchResults query={searchQuery}/>
+  } else if (view === "latest") {
+    feed = <LatestFeed/>
+  } else if (view === "top") {
+    feed = <TopFeed/>
+  } else {
+    feed = <HotFeed/>
+  }
 
   return (
     <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-900 p-2 lg:p-6">
       <div className="w-full">
-        <Nav refreshing={false} view={view} setView={setView} />
+        <Nav 
+          refreshing={false} 
+          view={view} 
+          setView={setView} 
+          setSearchQuery={setSearchQuery}
+        />
         <p className="py-2">
         </p>
-        {view == "latest" ? <LatestFeed /> : view == "top" ? <TopFeed/> : <HotFeed />}
+        {feed}
       </div>
+    </div>
+  );
+}
+
+function SearchResults({ query }: { query: string }) {
+  const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+  const [apeAmount, setApeAmount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchClankers = async () => {
+      setClankers([])
+      setRefreshing(true);
+      const data = await serverSearchClankers(query);
+      setClankers(data);
+      setRefreshing(false);
+    };
+
+    void fetchClankers();
+  }, [query]);
+
+  function onApe(clanker: ClankerWithData, eth: number) {
+    setApeAmount(eth)
+    setDetailClanker(clanker)
+  }
+
+  return (
+    <div className="w-full">
+      {clankers.length === 0 && (
+        <Loader text={`searching for ${query}`} />
+      )}
+      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {clankers.map((item, i) => (
+          <ClankItem 
+            key={i} 
+            c={item} 
+            onSelect={() => setDetailClanker(item)} 
+            onApe={(eth) => onApe(item, eth)}
+          />
+        ))}
+      </motion.div>
+      <div className="w-full flex lg:flex-row flex-col gap-4 mt-4">
+        <a href={shareUrl()} className="w-full">
+          <Button className="w-full mb-4" disabled={refreshing}>
+            <Share size={16} className="mr-2" />
+            Love clank.fun? Share it on Warpcast!
+          </Button>
+        </a>
+      </div>
+      <BuyModal 
+        clanker={detailClanker} 
+        onOpenChange={() => setDetailClanker(null)} 
+        apeAmount={apeAmount}
+        onAped={() => setApeAmount(null)}
+      />
     </div>
   );
 }
@@ -102,7 +176,7 @@ export function LatestFeed() {
   return (
     <div className="w-full">
       {clankers.length === 0 && (
-        <Loader />
+        <Loader text="Loading new clankers" />
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
         {clankers.map((item, i) => (
@@ -161,7 +235,7 @@ export function TopFeed() {
   return (
     <div className="w-full">
       {clankers.length === 0 && (
-        <Loader />
+        <Loader text="Loading top clankers"  />
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
         {clankers.map((item, i) => (
@@ -217,7 +291,7 @@ export function HotFeed() {
   return (
     <div className="w-full">
       {clankers.length === 0 && (
-        <Loader />
+        <Loader text="Loading hot clankers"  />
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
         {clankers.map((item, i) => (
@@ -399,7 +473,17 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
 }
 
 
-function Nav({ refreshing, view, setView }: { refreshing: boolean, view: NavPage, setView: (view: NavPage) => void }) {
+function Nav({ 
+  refreshing, 
+  view, 
+  setView,
+  setSearchQuery,
+}: { 
+  refreshing: boolean, 
+  view: NavPage, 
+  setView: (view: NavPage) => void 
+  setSearchQuery: (query: string) => void
+}) {
   return (
     <nav className="w-full flex flex-col gap-2 sticky top-0 bg-slate-900 pb-2 z-[9]">
       <div className="flex items-center gap-4 md:mb-4 text-white font-bold text-2xl">
@@ -419,32 +503,98 @@ function Nav({ refreshing, view, setView }: { refreshing: boolean, view: NavPage
           <ConnectKitButton />
         </div>
       </div>
-      <div className="w-full flex gap-2 max-w-[400px]">
-        <Button
-          variant="outline"
-          className={`flex-grow ${view === "top" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
-          onClick={() => setView("top")}
-        >
-          Top 🚀
+      <div className="w-full flex gap-2">
+        <div className="w-full max-w-[400px] flex justify-start gap-2">
+          <Button
+            variant="outline"
+            className={`flex-grow ${view === "top" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+            onClick={() => setView("top")}
+          >
+
+            <span className="hidden md:block">
+              Top 
+            </span>
+            🚀
+          </Button>
+          <Button
+            variant="outline"
+            className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+            onClick={() => setView("hot")}
+          >
+            <span className="hidden md:block">
+              Hot 
+            </span>
+            🔥
+          </Button>
+          <Button
+            variant="outline"
+            className={`flex-grow ${view === "latest" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+            onClick={() => setView("latest")}
+          >
+            <span className="hidden md:block">
+              New
+            </span>
+            ⏰
         </Button>
-        <Button
-          variant="outline"
-          className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
-          onClick={() => setView("hot")}
-        >
-          Hot 🔥
-        </Button>
-        <Button
-          variant="outline"
-          className={`flex-grow ${view === "latest" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
-          onClick={() => setView("latest")}
-        >
-          Recent ⏰
-        </Button>
+        </div>
+        <div className="flex-grow flex justify-end">
+          <ClankerSearch 
+            selected={view === "search"}
+            onQueryUpdate={(v) => {
+              setSearchQuery(v)
+              if (v.length > 0) {
+                setView("search")
+              }
+            }} />
+        </div>
       </div>
     </nav>
   )
 }
+
+export default function ClankerSearch({
+  selected,
+  onQueryUpdate, 
+}: {
+  selected: boolean
+  onQueryUpdate: (q: string) => void
+}) {
+
+  const [query, setQuery] = useState("")
+  const debouncedQueryUpdate = useCallback(
+    debounce((q: string) => onQueryUpdate(q), 500),
+    []
+  )
+
+  useEffect(() => {
+    debouncedQueryUpdate(query)
+  }, [query, debouncedQueryUpdate])
+
+  return (
+    <div className="space-y-2">
+      <div className="relative">
+        <Input 
+          id="input-26" 
+          className={`peer pe-9 ps-9 ${selected ? "bg-white/10" : "bg-transparent"}`}
+          placeholder="Search clankers..." 
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          type="search" />
+        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+          <Search size={16} strokeWidth={2} />
+        </div>
+        <button
+          className="absolute inset-y-0 end-0 flex h-full w-9 items-center justify-center rounded-e-lg text-muted-foreground/80 outline-offset-2 transition-colors hover:text-foreground focus:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring/70 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label="Submit search"
+          type="submit"
+        >
+          <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 
 function Logo() {
   return (
@@ -504,11 +654,14 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
   );
 };
 
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useCall, useChainId } from "wagmi";
 import { type PriceResponse } from "~/types";
 import { SwapInterface } from "./swap";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { debounce } from "lodash";
 // import QuoteView from "~/components/0xswap/quote";
 // import PriceView from "~/components/0xswap/price";
 
@@ -583,7 +736,11 @@ function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
   )
 }
 
-function Loader() {
+function Loader({
+  text
+}: {
+  text?: string
+}) {
   return (
     <motion.div
       className="text-white text-center p-10"
@@ -596,6 +753,7 @@ function Loader() {
       }}
     >
       <div className="flex justify-center gap-4">
+        {text}
         <motion.div
           className="text-4xl"
           animate={{

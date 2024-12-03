@@ -61,7 +61,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
     },
     orderBy: {
       contract_address: 'asc'
-    }
+    },
   })
 
   // Sort dbClankers in the same order as hotClankers
@@ -99,6 +99,60 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
+}
+
+export async function serverSearchClankers(query: string): Promise<ClankerWithData[]> {
+  const dbClankers = await db.clanker.findMany({
+    where: {
+      OR: [
+        {
+          name: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          symbol: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+      ],
+    },
+    take: 20
+  });
+
+  if (dbClankers.length === 0) {
+    return []
+  }
+
+  const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
+  const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
+  const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
+
+  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
+  const casts = await fetchCastsNeynar(castHashes)
+
+  const out = dbClankers.map((clanker, i) => {
+    return {
+      id: clanker.id,
+      created_at: clanker.created_at.toString(),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address,
+      requestor_fid: clanker.requestor_fid,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type ?? "unknown",
+      marketCap: mcaps[clanker.pool_address] ?? -1,
+      cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
+    }
+  })
+
+  out.sort((a, b) => b.marketCap - a.marketCap)
+  return out
 }
 
 export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
