@@ -51,7 +51,7 @@ function cleanTicker(text: string) {
 
 
 export function App() {
-  const [view, setView] = useState<NavPage>("top");
+  const [view, setView] = useState<NavPage>("hot");
   const [searchQuery, setSearchQuery] = useState<string>("")
 
   let feed
@@ -585,6 +585,16 @@ function Nav({
         <div className="w-full max-w-[400px] flex justify-start gap-2">
           <Button
             variant="outline"
+            className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
+            onClick={() => setView("hot")}
+          >
+            <span className="hidden md:block">
+              Hot 
+            </span>
+            🔥
+          </Button>
+          <Button
+            variant="outline"
             className={`flex-grow ${view === "top" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
             onClick={() => setView("top")}
           >
@@ -593,16 +603,6 @@ function Nav({
               Top 
             </span>
             🚀
-          </Button>
-          <Button
-            variant="outline"
-            className={`flex-grow ${view === "hot" ? "bg-white/10" : "bg-transparent"} hover:bg-white/20`}
-            onClick={() => setView("hot")}
-          >
-            <span className="hidden md:block">
-              Hot 
-            </span>
-            🔥
           </Button>
           <Button
             variant="outline"
