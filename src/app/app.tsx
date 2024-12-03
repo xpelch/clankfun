@@ -6,7 +6,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, serverFetchBalance, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -145,6 +145,8 @@ function SearchResults({ query }: { query: string }) {
 }
 
 export function LatestFeed() {
+  const { address } = useAccount()
+
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [page, setPage] = useState(1);
@@ -190,6 +192,7 @@ export function LatestFeed() {
             c={item} 
             onSelect={() => setDetailClanker(item)} 
             onApe={(eth) => onApe(item, eth)}
+            // balance={balances[item.contract_address]}
           />
         ))}
       </motion.div>
@@ -221,6 +224,17 @@ export function TopFeed() {
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
 
+  const { address } = useAccount()
+  const [balances, setBalances] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    async function checkBalance() {
+      const balances = await serverFetchBalance(address)
+      setBalances(balances)
+    }
+    void checkBalance()
+  }, [address])
+
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
@@ -249,6 +263,7 @@ export function TopFeed() {
             c={item} 
             onSelect={() => setDetailClanker(item)} 
             onApe={(eth) => onApe(item, eth)}
+            balance={balances[item.contract_address]}
           />
         ))}
       </motion.div>
@@ -326,6 +341,21 @@ export function HotFeed() {
   );
 }
 
+function formatBalance(balance: number, decimals: number) {
+  balance = balance / 10 ** decimals
+
+  // examples: 50k, 52.4m, 1.2b
+  if (balance < 1000) {
+    return balance.toFixed(2);
+  } else if (balance < 1000000) {
+    return (balance / 1000).toFixed(2) + "k";
+  } else if (balance < 1000000000) {
+    return (balance / 1000000).toFixed(2) + "m";
+  } else {
+    return (balance / 1000000000).toFixed(2) + "b";
+  }
+}
+
 function formatPrice(price: number) {
   // examples: 50k, 52.4m, 1.2b
   if (price < 1000) {
@@ -339,7 +369,7 @@ function formatPrice(price: number) {
   }
 }
 
-function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () => void, onApe: (eth: number) => void }) {
+function ClankItem({ c, onSelect, onApe, balance }: { c: ClankerWithData, onSelect?: () => void, onApe: (eth: number) => void, balance?: number }) {
   const { toast } = useToast()
 
   function copyAddressToClipboard() {
@@ -356,20 +386,25 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
         <WithTooltip text={`Trade ${c.name}`}>
         <div className="w-full h-full" onClick={onSelect}>
           {c.img_url ? (
-            <motion.img
-              src={c.img_url ?? ""}
-              alt=""
-              className="cursor-pointer w-full h-full object-contain"
+            <motion.div
+              className="relative w-full h-full"
               whileHover={{
                 rotate: 5,
                 scale: 0.9,
                 rotateX: 10,
                 rotateY: 10,
               }}
-            />
+            >
+              <img
+                src={c.img_url ?? ""}
+                alt=""
+                className="cursor-pointer w-full h-full object-contain"
+              />
+              {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
+            </motion.div>
           ) : (
             <motion.div
-              className="cursor-pointer w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
+              className="relative w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
               whileHover={{
                 rotate: 5,
                 scale: 0.9,
@@ -378,6 +413,7 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
               }}
             >
               <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
+              {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
             </motion.div>
           )}
         </div>
@@ -477,6 +513,13 @@ function ClankItem({ c, onSelect, onApe }: { c: ClankerWithData, onSelect?: () =
   )
 }
 
+function BalanceView({ balance, decimals, priceUsd }: { balance: number, decimals: number, priceUsd: number }) {
+  return (
+    <div className="absolute h-10 bottom-0 left-0 w-full bg-gradient-to-bl from-pink-500 to-purple-500  text-white p-1 grid place-items-center">
+      <span className="text-xs">You own {formatBalance(balance, decimals)} (${formatPrice(priceUsd * balance / 10**decimals)})</span>
+    </div>
+  )
+}
 
 function Nav({ 
   refreshing, 
@@ -667,6 +710,7 @@ import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { debounce } from "lodash";
+import { check } from "prettier";
 // import QuoteView from "~/components/0xswap/quote";
 // import PriceView from "~/components/0xswap/price";
 

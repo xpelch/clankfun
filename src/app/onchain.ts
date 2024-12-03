@@ -20,6 +20,40 @@ const settings = {
 
 const alchemy = new Alchemy(settings);
 
+export async function getTokenBalance(address?: string): Promise<Record<string, number>> {
+  if (!address) return {}
+  const url = `https://base-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}`
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+
+  const body = JSON.stringify({
+      id: 1,
+      jsonrpc: "2.0",
+      method: "alchemy_getTokenBalances",
+      params: [
+          address,
+          "erc20"
+      ]
+  });
+
+  const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: body
+  })
+  const data = await res.json()
+  const balances = data.result.tokenBalances.reduce((acc: any, curr: any) => {
+    // const balance = ethers.formatEther(parseInt(curr.tokenBalance).toString())
+    const balance = parseInt(BigNumber.from(curr.tokenBalance).toString())
+    acc[curr.contractAddress] = balance;
+    return acc;
+  }, {});
+
+  return balances
+}
+
 export async function getEthUsdPrice(): Promise<number> {
   const poolAddress = "0x4200000000000000000000000000000000000006"; // e.g., WETH-USDC pool address
   const poolData = await alchemy.prices.getTokenPriceByAddress([{ network: Network.BASE_MAINNET, address: poolAddress }]);
@@ -35,7 +69,7 @@ function calculatePrice(sqrtPriceX96: bigint, decimalsToken0: number, decimalsTo
     return price * decimalAdjustment;
 }
 
-async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<number> {
+async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: string, ethPrice: number): Promise<TokenData> {
   try {
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider) as any
     const poolContract = new ethers.Contract(
@@ -57,14 +91,28 @@ async function fetchSinglePoolMarketCap(tokenAddress: string, poolAddress: strin
     const price = calculatePrice(sqrtPriceX96 as bigint, 18, intDecimals);
     const priceUsd = price * ethPrice;
     const marketCap = priceUsd * intSupply;
-    return marketCap
+    return {
+      marketCap,
+      usdPrice: priceUsd,
+      decimals: intDecimals
+    }
   } catch(e: any) {
     console.log(`Error fetching market cap for pool ${poolAddress}: ${e}`);
-    return -1;
+    return {
+      marketCap: 0,
+      usdPrice: 0,
+      decimals: 0
+    };
   }
 }
 
-export async function fetchMultiPoolMarketCaps(poolAddresses: string[], tokenAddress: string[]): Promise<Record<string, number>> {
+type TokenData = {
+  marketCap: number;
+  usdPrice: number;
+  decimals: number
+}
+
+export async function fetchMultiPoolMarketCaps(poolAddresses: string[], tokenAddress: string[]): Promise<Record<string, TokenData>> {
   // Get ETH price once for all calculations
   const ethPrice = await getEthUsdPrice();
   

@@ -8,7 +8,7 @@
 import { env } from '~/env';
 import { NeynarAPIClient } from "@neynar/nodejs-sdk";
 import axios from 'axios';
-import { fetchMultiPoolMarketCaps, getEthUsdPrice } from './onchain';
+import { fetchMultiPoolMarketCaps, getEthUsdPrice, getTokenBalance } from './onchain';
 
 import * as z from 'zod';
 import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v2';
@@ -31,7 +31,12 @@ const ClankerSchema = z.object({
 });
 
 export type Clanker = z.infer<typeof ClankerSchema>
-export type ClankerWithData = Clanker & { marketCap: number, cast: CastWithInteractions | null }
+export type ClankerWithData = Clanker & { 
+  marketCap: number, 
+  decimals: number,
+  priceUsd: number,
+  cast: CastWithInteractions | null 
+}
 
 type ClankerResponse = {
   data: ClankerWithData[];
@@ -48,6 +53,10 @@ export async function serverFetchSwapPrice(userAddress: string, tokenAddress: st
 
 export async function serverEthUSDPrice() {
   return getEthUsdPrice()
+}
+
+export async function serverFetchBalance(address?: string) {
+  return await getTokenBalance(address)
 }
 
 export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
@@ -95,7 +104,9 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       pool_address: clanker.pool_address,
       cast_hash: clanker.cast_hash,
       type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address] ?? -1,
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
@@ -146,7 +157,9 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
       pool_address: clanker.pool_address,
       cast_hash: clanker.cast_hash,
       type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address] ?? -1,
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
@@ -200,7 +213,9 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
       pool_address: clanker.pool_address,
       cast_hash: clanker.cast_hash,
       type: clanker.type ?? "unknown",
-      marketCap: mcaps[clanker.pool_address] ?? -1,
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
@@ -240,7 +255,9 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
   const clankersWithMarketCap = parsedData.map((clanker, i) => {
     return { 
       ...clanker, 
-      marketCap: mcaps[clanker.pool_address] ?? -1,
+      marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
+      priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
