@@ -168,6 +168,39 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
   return out
 }
 
+export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
+  const ca = "0x1d008f50fb828ef9debbbeae1b71fffe929bf317"
+  const clanker = await db.clanker.findFirst({
+    where: {
+      contract_address: ca,
+    },
+  });
+  if (!clanker) {
+    throw new Error("Native coin not found in database")
+  }
+  const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
+  if (!data[clanker.pool_address]) {
+    throw new Error("Native coin pool data not found")
+  }
+  return {
+    id: clanker.id,
+    created_at: clanker.created_at.toString(),
+    tx_hash: clanker.tx_hash,
+    contract_address: clanker.contract_address,
+    requestor_fid: clanker.requestor_fid,
+    name: clanker.name,
+    symbol: clanker.symbol,
+    img_url: clanker.img_url,
+    pool_address: clanker.pool_address,
+    cast_hash: clanker.cast_hash,
+    type: clanker.type ?? "unknown",
+    marketCap: data[clanker.pool_address]?.marketCap ?? -1,
+    priceUsd: data[clanker.pool_address]?.usdPrice ?? -1,
+    decimals: data[clanker.pool_address]?.decimals ?? -1,
+    cast: null
+  } 
+}
+
 export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   const hotClankers = await getTopClankersCA()
 

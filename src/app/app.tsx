@@ -6,7 +6,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchBalance, serverFetchClankers, serverFetchHotClankers, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, serverFetchBalance, serverFetchClankers, serverFetchHotClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -76,10 +76,76 @@ export function App() {
         />
         <p className="py-2">
         </p>
+        <div className="md:hidden">
+          <ClankfunShill/>
+        </div>
+        <div className="fixed bottom-10 right-10 hidden md:block z-[30]">
+          <ClankfunShill/>
+        </div>
         {feed}
       </div>
     </div>
   );
+}
+
+function ClankfunShill() {
+  const [data, setData] = useState<ClankerWithData | null>(null)
+  const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
+
+  useEffect(() => {
+    async function fetchClankfun() {
+      const data = await serverFetchNativeCoin()
+      setData(data)
+    }
+    void fetchClankfun()
+  }, [])
+
+  return (
+    <div className="w-full">
+      {data && (
+        <motion.div
+          onClick={() => setDetailClanker(data)}
+          style={{
+            // skewX: "-3deg",
+            // skewY: "4deg",
+          }}
+          whileHover={{
+            scale: 1.1,
+            rotate: 3,
+          }}
+          className="cursor-pointer w-full flex gap-2 bg-purple-600 px-2 py-2 rounded-md mb-2 items-center border-2 border-purple-400"
+        >
+          <img src={data.img_url!} alt="Clankfun" className="w-8 h-8 rounded" />
+          <div className="flex-grow">
+            <span className="font-bold">$CLANKFUN</span>
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                color: ["#ff0000", "#ffa500", "#ffff00", "#008000", "#0000ff", "#4b0082", "#ee82ee", "#ff0000"],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 1,
+                ease: "easeInOut",
+              }}
+              className="inline-block ml-2 text-xs"
+            >
+              🔥 NEW
+            </motion.div>
+          </div>
+          <div className="mr-2">
+            MCap: ${formatPrice(data.marketCap)}
+          </div>
+          {detailClanker && <BuyModal
+            clanker={detailClanker}
+            onOpenChange={() => setDetailClanker(null)}
+            apeAmount={0}
+            onAped={() => {}}
+          />}
+        </motion.div>
+      )}
+    </div>
+  )
 }
 
 function SearchResults({ query }: { query: string }) {
