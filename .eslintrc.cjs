@@ -15,6 +15,7 @@ const config = {
   "rules": {
     "@typescript-eslint/no-unused-vars": "off",
     "react-hooks/exhaustive-deps": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
     "@typescript-eslint/no-floating-promises": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
