@@ -84,7 +84,7 @@ export function App() {
 
 function SearchResults({ query }: { query: string }) {
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [searching, setSearching] = useState(false);
 
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
   const [apeAmount, setApeAmount] = useState<number | null>(null)
@@ -92,10 +92,10 @@ function SearchResults({ query }: { query: string }) {
   useEffect(() => {
     const fetchClankers = async () => {
       setClankers([])
-      setRefreshing(true);
+      setSearching(true);
       const data = await serverSearchClankers(query);
       setClankers(data);
-      setRefreshing(false);
+      setSearching(false);
     };
 
     void fetchClankers();
@@ -108,8 +108,13 @@ function SearchResults({ query }: { query: string }) {
 
   return (
     <div className="w-full">
-      {clankers.length === 0 && (
-        <Loader text={`searching for ${query}`} />
+      {searching && (
+        <Loader text={`Searching for ${query}`} />
+      )}
+      {!searching && clankers.length === 0 && (
+        <div className="w-full h-20 grid place-items-center">
+          No results found for &quot;{query}&quot;
+        </div>
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
         {clankers.map((item, i) => (
@@ -123,7 +128,7 @@ function SearchResults({ query }: { query: string }) {
       </motion.div>
       <div className="w-full flex lg:flex-row flex-col gap-4 mt-4">
         <a href={shareUrl()} className="w-full">
-          <Button className="w-full mb-4" disabled={refreshing}>
+          <Button className="w-full mb-4" disabled={searching}>
             <Share size={16} className="mr-2" />
             Love clank.fun? Share it on Warpcast!
           </Button>
