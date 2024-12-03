@@ -15,8 +15,7 @@ easily browse and trade clanker memecoins on Base
 * New query hits the clanker API directly for fresh data
 * trading implemented using 0x protocol 
 
-## contribute
+## set up for development
 
-you will need a neynar API key + access to their replicator DB. 
-you can mock the DB easily for local development.
-see `src/app/server.ts` for more info.
+* copy envs in `.env.example` to `.env`
+* set up the required services (I run everything on a coolify instance)
