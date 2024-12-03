@@ -140,7 +140,7 @@ function ClankfunShill() {
             clanker={detailClanker}
             onOpenChange={() => setDetailClanker(null)}
             apeAmount={0}
-            onAped={() => {}}
+            onAped={() => { void 0 }}
           />}
         </motion.div>
       )}
