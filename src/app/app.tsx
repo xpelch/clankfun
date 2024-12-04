@@ -395,10 +395,10 @@ export function HotFeed() {
     const existing = clankers.find(c => c.contract_address.toLowerCase() === ca)
     if (existing) {
       // bump existing to the top of clankers
-      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== ca)])
+      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== existing.contract_address.toLowerCase())])
     } else {
       const data = await serverFetchCA(ca)
-      setClankers(prevClankers => [data, ...prevClankers.slice(0, 39)])
+      setClankers(prevClankers => [data, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== data.contract_address.toLowerCase()).slice(0, 39)])
     }
   }
 
