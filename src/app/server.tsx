@@ -193,10 +193,13 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   if (!clanker) {
     throw new Error("CA not found in database")
   }
-  const [data, cast] = await Promise.all([
-    fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address]),
-    fetchCastsNeynar([clanker.cast_hash])
-  ])
+  const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
+  let cast = null
+  try {
+    cast = (await fetchCastsNeynar([clanker.cast_hash]))[0]
+  } catch(e) {
+    console.log(`Error fetching cast for ${clanker.cast_hash}: ${e}`)
+  }
   if (!data[clanker.pool_address]) {
     throw new Error("CA data not found")
   }
@@ -215,7 +218,7 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
     marketCap: data[clanker.pool_address]?.marketCap ?? -1,
     priceUsd: data[clanker.pool_address]?.usdPrice ?? -1,
     decimals: data[clanker.pool_address]?.decimals ?? -1,
-    cast: cast[0] ?? null
+    cast: cast ?? null
   } 
   await redis.set(cacheKey, JSON.stringify(res), "EX", CACHE_EXPIRATION_SECONDS);
   return res

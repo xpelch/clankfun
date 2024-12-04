@@ -395,7 +395,7 @@ export function HotFeed() {
     const existing = clankers.find(c => c.contract_address.toLowerCase() === ca)
     if (existing) {
       // bump existing to the top of clankers
-      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address !== ca)])
+      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address.toLowerCase() !== ca)])
     } else {
       const data = await serverFetchCA(ca)
       setClankers(prevClankers => [data, ...prevClankers.slice(0, 39)])
