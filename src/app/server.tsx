@@ -198,7 +198,7 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   try {
     cast = (await fetchCastsNeynar([clanker.cast_hash]))[0]
   } catch(e) {
-    console.log(`Error fetching cast for ${clanker.cast_hash}: ${e}`)
+    console.log(`Error fetching cast for ${clanker.cast_hash}`)
   }
   if (!data[clanker.pool_address]) {
     throw new Error("CA data not found")
