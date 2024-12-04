@@ -6,7 +6,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type ClankerWithData, serverFetchBalance, serverFetchClankers, serverFetchHotClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
+import { type ClankerWithData, serverFetchBalance, serverFetchCA, serverFetchClankers, serverFetchHotClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
@@ -16,7 +16,7 @@ import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-
+import { io } from 'socket.io-client';
 
 type NavPage = "latest" | "hot" | "top" | "search"
 
@@ -390,6 +390,18 @@ export function HotFeed() {
     void checkBalance()
   }, [address])
 
+  async function processNewLiveTrade(ca: string) {
+    ca = ca.toLowerCase()
+    const existing = clankers.find(c => c.contract_address.toLowerCase() === ca)
+    if (existing) {
+      // bump existing to the top of clankers
+      setClankers(prevClankers => [existing, ...prevClankers.filter(c => c.contract_address !== ca)])
+    } else {
+      const data = await serverFetchCA(ca)
+      setClankers(prevClankers => [data, ...prevClankers.slice(0, 39)])
+    }
+  }
+
   useEffect(() => {
     const fetchClankers = async () => {
       setRefreshing(true);
@@ -399,6 +411,21 @@ export function HotFeed() {
     };
 
     void fetchClankers();
+
+    // Connect to the socket.io server
+    const socket = io('https://rt.clank.fun');
+    console.log('Connecting to clank.fun socket.io server');
+
+    // Listen for new clankers
+    socket.on('clankers', (clanker) => {
+      console.log('New trade:', clanker.contract_address);
+      void processNewLiveTrade(clanker.contract_address);
+    });
+
+    // Clean up the socket connection on unmount
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   function onApe(clanker: ClankerWithData, eth: number) {
@@ -412,11 +439,23 @@ export function HotFeed() {
         <Loader text="Loading hot clankers"  />
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {clankers.map((item, i) => (
-          <ClankItem 
-            key={i} 
-            c={item} 
-            onSelect={() => setDetailClanker(item)} 
+        {clankers[0] && <motion.div
+          key={clankers[0].contract_address}
+          animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 0.4 }}
+        >
+          <ClankItem
+            c={clankers[0]}
+            onSelect={() => setDetailClanker(clankers[0] ?? null)}
+            onApe={(eth) => onApe(clankers[0]!, eth)}
+            balance={balances[clankers[0].contract_address]}
+          />
+        </motion.div>}
+        {clankers.slice(1).map((item, i) => (
+          <ClankItem
+            key={i + 1}
+            c={item}
+            onSelect={() => setDetailClanker(item)}
             onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
           />
@@ -805,7 +844,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { debounce } from "lodash";
+import { debounce, set } from "lodash";
 import { check } from "prettier";
 // import QuoteView from "~/components/0xswap/quote";
 // import PriceView from "~/components/0xswap/price";

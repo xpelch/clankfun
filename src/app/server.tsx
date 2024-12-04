@@ -15,6 +15,11 @@ import { type CastWithInteractions } from '@neynar/nodejs-sdk/build/neynar-api/v
 import { getQuote, getSwapPrice } from '~/lib/0x';
 import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
+import Redis from 'ioredis';
+
+const redis = new Redis(env.REDIS_URL);
+
+const CACHE_EXPIRATION_SECONDS = 60; // 1 minutes
 
 const ClankerSchema = z.object({
   id: z.number(),
@@ -170,19 +175,29 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
 
 export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
   const ca = "0x1d008f50fb828ef9debbbeae1b71fffe929bf317"
+  return await serverFetchCA(ca)
+}
+
+export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
+  const cacheKey = `clanker:${ca}`;
+  const cachedResult = await redis.get(cacheKey);
+  if (cachedResult) {
+    console.log(`Clanker cache hit for ${cacheKey}`);
+    return JSON.parse(cachedResult);
+  }
   const clanker = await db.clanker.findFirst({
     where: {
       contract_address: ca,
     },
   });
   if (!clanker) {
-    throw new Error("Native coin not found in database")
+    throw new Error("CA not found in database")
   }
   const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
   if (!data[clanker.pool_address]) {
-    throw new Error("Native coin pool data not found")
+    throw new Error("CA data not found")
   }
-  return {
+  const res = {
     id: clanker.id,
     created_at: clanker.created_at.toString(),
     tx_hash: clanker.tx_hash,
@@ -199,6 +214,8 @@ export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
     decimals: data[clanker.pool_address]?.decimals ?? -1,
     cast: null
   } 
+  await redis.set(cacheKey, JSON.stringify(res), "EX", CACHE_EXPIRATION_SECONDS);
+  return res
 }
 
 export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
