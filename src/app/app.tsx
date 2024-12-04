@@ -113,25 +113,11 @@ function ClankfunShill() {
             scale: 1.1,
             rotate: 3,
           }}
-          className="cursor-pointer w-full flex gap-2 bg-purple-600 px-2 py-2 rounded-md mb-2 items-center border-2 border-purple-400"
+          className="cursor-pointer w-full flex gap-2 bg-purple-800 px-2 py-2 rounded-md mb-2 items-center border-2 border-purple-600"
         >
           <img src={data.img_url!} alt="Clankfun" className="w-8 h-8 rounded" />
           <div className="flex-grow">
             <span className="font-bold">$CLANKFUN</span>
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                color: ["#ff0000", "#ffa500", "#ffff00", "#008000", "#0000ff", "#4b0082", "#ee82ee", "#ff0000"],
-              }}
-              transition={{
-                repeat: Infinity,
-                duration: 1,
-                ease: "easeInOut",
-              }}
-              className="inline-block ml-2 text-xs"
-            >
-              🔥 NEW
-            </motion.div>
           </div>
           <div className="mr-2">
             MCap: ${formatPrice(data.marketCap)}
