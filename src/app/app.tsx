@@ -893,13 +893,27 @@ function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>clank.fun is home of memecoins on Base</DialogTitle>
-          <DialogDescription>
-            clank.fun is pumpfun for Base meme coins deployed with clanker. browse the hottest clankers and trade in seconds! $CLANKFUN is the official token of clank.fun
-          </DialogDescription>
-          <ul className="mt-10">
-            <li><a href="https://clanker.world/" target="_blank" rel="noopener noreferrer">visit the official Clanker site</a></li>
-          </ul>
+          <DialogTitle>find and trade the hottest coins on Base</DialogTitle>
+          <p className="text-muted-foreground">
+            clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. 
+          </p>
+          <p className="text-muted-foreground">
+            all Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.
+          </p>
+          <p className="text-muted-foreground">
+            clank.fun was built by <a href="https://warpcast.com/nt" target="_blank" rel="noreferrer" className="underline">@nt</a>
+          </p>
+          <p className="text-muted-foreground">
+            learn more about Clanker and Farcaster:
+          </p>
+          <div className="flex gap-4 justify-center md:justify-normal">
+            <a href="https://clanker.world" target="_blank" rel="noreferrer" className="underline">
+              Clanker
+            </a>
+            <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="underline">
+              Farcaster 
+            </a>
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>
