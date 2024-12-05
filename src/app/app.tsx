@@ -120,8 +120,13 @@ function ClankfunShill() {
             <span className="font-bold">$CLANKFUN</span>
           </div>
           <div className="mr-2">
-            MCap: ${formatPrice(data.marketCap)}
+            ${formatPrice(data.marketCap)}
           </div>
+          <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
+            <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
+              <ChartAreaIcon size={34} />
+            </Button>
+          </a>
           {detailClanker && <BuyModal
             clanker={detailClanker}
             onOpenChange={() => setDetailClanker(null)}
