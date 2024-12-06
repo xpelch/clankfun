@@ -34,7 +34,7 @@ export async function getQuote(
     tradeSurplusRecipient: env.FEE_RECIPIENT,
     swapFeeBps: FEE_BPS.toString(),
     swapFeeToken: WETH_ADDRESS,
-    slippageBps: "500",
+    slippageBps: "2500",
   });
 
   const quoteResponse = await fetch(
