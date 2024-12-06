@@ -11,7 +11,7 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
+import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
@@ -123,9 +123,18 @@ function ClankfunShill() {
             ${formatPrice(data.marketCap)}
           </div>
           <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
-            <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
-              <ChartAreaIcon size={34} />
-            </Button>
+            <WithTooltip text="View on DexScreener">
+              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
+                <ChartAreaIcon size={34} />
+              </Button>
+            </WithTooltip>
+          </a>
+          <a href="https://t.me/clankfunn" target="_blank" rel="noopener noreferrer">
+            <WithTooltip text="Join the community">
+              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
+                <MessageCircle size={34} />
+              </Button>
+            </WithTooltip>
           </a>
           {detailClanker && <BuyModal
             clanker={detailClanker}
