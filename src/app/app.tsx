@@ -863,18 +863,18 @@ function BuyModal({
 
   return (
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1200px]">
+      <DialogContent className="max-w-[90%]">
         <DialogHeader>
           <VisuallyHidden.Root>
             <DialogTitle>Trade {clanker?.name}</DialogTitle>
           </VisuallyHidden.Root>
         </DialogHeader>
-        <div className="flex flex-col lg:flex-row gap-4">
+        <div className="h-full w-full flex flex-col lg:flex-row gap-4">
           {clanker?.pool_address && <iframe 
-            className="hidden lg:block w-full lg:w-1/2 h-[200px] lg:h-full rounded-lg"
+            className="hidden lg:block rounded-lg w-full h-[700px]"
             id="geckoterminal-embed" 
             title="GeckoTerminal Embed" 
-            src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`}
+            src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=1&grayscale=0&light_chart=0`}
             allow="clipboard-write"
           >
           </iframe>}
