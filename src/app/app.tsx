@@ -863,30 +863,42 @@ function BuyModal({
 
   return (
     <Dialog open={clanker !== null} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[1200px]">
         <DialogHeader>
           <VisuallyHidden.Root>
             <DialogTitle>Trade {clanker?.name}</DialogTitle>
           </VisuallyHidden.Root>
         </DialogHeader>
-        <div className="flex gap-4 items-center text-xl mb-2">
-          {clanker?.img_url && <img src={clanker?.img_url} alt="" className="w-12 h-12 rounded-full" />}
-          <div>
-            <p className="md:text-2xl">
-              trade <span className="font-bold">{clanker?.name}</span>
-            </p>
-            <p className="text-white/50 text-xs md:text-sm">
-              Swaps routed through 0x protocol
-            </p>
+        <div className="flex flex-col lg:flex-row gap-4">
+          {clanker?.pool_address && <iframe 
+            className="hidden lg:block w-full lg:w-1/2 h-[200px] lg:h-full rounded-lg"
+            id="geckoterminal-embed" 
+            title="GeckoTerminal Embed" 
+            src={`https://www.geckoterminal.com/base/pools/${clanker?.pool_address}?embed=1&info=0&swaps=0&grayscale=0&light_chart=0`}
+            allow="clipboard-write"
+          >
+          </iframe>}
+          <div className="flex-grow">
+            <div className="flex gap-4 items-center text-xl mb-2">
+              {clanker?.img_url && <img src={clanker?.img_url} alt="" className="w-12 h-12 rounded-full" />}
+              <div>
+                <p className="md:text-2xl">
+                  trade <span className="font-bold">{clanker?.name}</span>
+                </p>
+                <p className="text-white/50 text-xs md:text-sm">
+                  Swaps routed through 0x protocol
+                </p>
+              </div>
+            </div>
+            {clanker && 
+              <SwapInterface 
+                clanker={clanker} 
+                apeAmount={apeAmount} 
+                onAped={onAped}
+                onSwapComplete={() => onOpenChange(false)}
+              />}
           </div>
         </div>
-        {clanker && 
-          <SwapInterface 
-            clanker={clanker} 
-            apeAmount={apeAmount} 
-            onAped={onAped}
-            onSwapComplete={() => onOpenChange(false)}
-          />}
       </DialogContent>
     </Dialog>
   )
