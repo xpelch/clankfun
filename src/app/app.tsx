@@ -928,6 +928,11 @@ function CastButtonDialog({ refreshing }: { refreshing: boolean }) {
               Farcaster 
             </a>
           </div>
+          <div className="flex gap-4 justify-center md:justify-normal">
+            <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="underline">
+              Join the Telegram community
+            </a>
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>
