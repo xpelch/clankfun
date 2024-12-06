@@ -345,7 +345,8 @@ export function SwapInterface({
         <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(100)}>100%</Button>
       </div>
       <div>
-        {swapUSDAmount > 0 && <span className="text-white/50">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}
+        {swapUSDAmount > 0 && <span className="text-white text-sm">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}<br/>
+        {swapUSDAmount > 0 && <span className="text-white/50 text-sm">clank.fun fee: 0.5% ({formatUSD(swapUSDAmount * 0.005)})</span>}
       </div>
       {address ? <ApproveOrReviewButton 
         onClick={initiateSwap} 
