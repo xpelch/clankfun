@@ -677,7 +677,7 @@ function Nav({
               clank.fun
             </h1>
             <p className="text-xs font-muted-foreground hidden md:block">
-              find and trade 🔥 memes on Base
+              find and trade hot memes on Base
             </p>
           </div>
         </div>
