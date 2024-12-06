@@ -17,6 +17,7 @@ import {
 import type { Address, Hex } from "viem";
 import { useToast } from "~/hooks/use-toast";
 import { PriceInput } from "~/components/ui/priceinput";
+import { ConnectKitButton } from "connectkit";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -114,11 +115,10 @@ export function SwapInterface({
     return () => { cancelToken.cancelled = true; }
   }, [amount, isBuying]);
 
-  useEffect(() => {
-    console.log(apeAmount, ethBalance)
-    if (!apeAmount || !ethBalance) return;
+  async function ape(amountEth: number) {
+    if (!ethBalance) return;
     const balance = balances().eth
-    if (apeAmount > balance) {
+    if (amountEth > balance) {
       toast({
         title: "Insufficient balance",
         description: "You do not have enough ETH to make this trade. Please choose a different amount"
@@ -128,12 +128,12 @@ export function SwapInterface({
         title: "Aping in 🦍",
       })
 
-      setAmountText(String(apeAmount))
+      setAmountText(String(amountEth))
       setIsBuying(true)
-      startSwap(apeAmount, true)
+      startSwap(amountEth, true)
       onAped()
     }
-  }, [apeAmount, ethBalance])
+  }
 
   const {
     data: hash,
@@ -344,6 +344,11 @@ export function SwapInterface({
         <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(75)}>75%</Button>
         <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(100)}>100%</Button>
       </div>
+      {isBuying && <div className="flex justify-between gap-2">
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.01)}>Ape 0.01Ξ</Button>
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.05)}>Ape 0.05Ξ</Button>
+        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.1)}>Ape 0.1Ξ</Button>
+      </div>}
       <div>
         {swapUSDAmount > 0 && <span className="text-white text-sm">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}<br/>
         {swapUSDAmount > 0 && <span className="text-white/50 text-sm">clank.fun fee: 0.5% ({formatUSD(swapUSDAmount * 0.005)})</span>}
@@ -355,7 +360,10 @@ export function SwapInterface({
         disabled={actionPending} 
         price={priceRes} 
         userShouldApprove={userShouldApprove}
-      /> : <Button disabled={true}>Connect Wallet to Trade</Button>}
+      /> : 
+      <div className="w-full grid place-items-center">
+        <ConnectKitButton label="Connect Wallet" />
+      </div>}
     </div>
   );
 }

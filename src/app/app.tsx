@@ -11,12 +11,13 @@ import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neyna
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
+import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, Clock, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
 import { ConnectKitButton } from "connectkit";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { io } from 'socket.io-client';
+import moment from "moment"
 
 type NavPage = "latest" | "hot" | "top" | "search"
 
@@ -559,47 +560,28 @@ function ClankItem({ c, onSelect, onApe, balance }: { c: ClankerWithData, onSele
       </div> 
       <div className="flex-grow pl-2">
         <div className="pl-2">
-          <div className="flex w-full items-center gap-2">
+          <div className="flex w-full items-start gap-2">
             <WithTooltip text={`Trade ${c.name}`}>
               <p className="font-bold text-xl flex-grow cursor-pointer" onClick={onSelect}>
                 {c.name} (${c.symbol})
               </p>
             </WithTooltip>
-            <div className="flex-none flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <motion.div
-                    whileHover={{
-                      scale: 1.2,
-                      rotate: -10,
-                    }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Button size={"icon"} className="bg-purple-800 text-white hover:bg-purple-700 flex items-center gap-2">
-                      <img src="/ape.svg" alt="Ape" className="w-6 h-6 opacity-70" />
-                    </Button>
-                  </motion.div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={onSelect}>💰 Trade {cleanTicker(c.name)}</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onApe(0.01)}>🐠 Ape 0.01 Ξ</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onApe(0.04)}>🐬 Ape 0.04 Ξ</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onApe(0.1)}>🐳 Ape 0.1 Ξ</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {/* <DropdownMenuItem>
-                    <a href={`https://www.clanker.world/clanker/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
-                      View on Clanker
-                    </a>
-                  </DropdownMenuItem> */}
-                  <DropdownMenuItem>
-                    <a href={`https://dexscreener.com/base/${c.contract_address}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 flex-none">
-                      View on DexScreener
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={copyAddressToClipboard}>Copy CA</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <WithTooltip text="Launched">
+              <motion.div
+                animate={{
+                  backgroundColor: moment(c.created_at).isAfter(moment().subtract(10, 'minutes')) ? ['#9f7aea', '#c084fc', '#9f7aea'] : [],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 1,
+                  ease: 'easeInOut',
+                }}
+                className="flex-none rounded-md bg-slate-800 px-2 py-1 text-sm flex gap-2 items-center"
+              >
+                <Clock size={16} />
+                {moment(c.created_at).fromNow(true)}
+              </motion.div>
+            </WithTooltip>
           </div>
           <div className="flex gap-4 mt-2 text-lg">
             <WithTooltip text="Market Cap">

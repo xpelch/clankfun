@@ -50,6 +50,7 @@
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.460.0",
+    "moment": "^2.30.1",
     "next": "^15.0.1",
     "pg": "^8.13.1",
     "posthog-js": "^1.187.2",
