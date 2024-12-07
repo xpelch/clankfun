@@ -452,7 +452,7 @@ export function HotFeed() {
       {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
-      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <motion.div className="w-full h-full grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-4">
         {dispClankers[0] && <motion.div
           key={dispClankers[0].contract_address}
           animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
@@ -559,11 +559,11 @@ function ClankItem({
 
   return (
     <div
-      className={`w-full flex flex-col md:flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
+      className={`w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
+      <div className="mb-4 md:mb-0 w-36 h-36 flex-none flex items-center justify-center overflow-hidden rounded">
         <WithTooltip text={`Trade ${c.name}`}>
         <div className="w-full h-full" onClick={onSelect}>
           {c.img_url ? (
@@ -604,8 +604,8 @@ function ClankItem({
         <div className="pl-2">
           <div className="flex w-full items-start gap-2">
             <WithTooltip text={`Trade ${c.name}`}>
-              <p className="font-bold text-xl flex-grow cursor-pointer" onClick={onSelect}>
-                {c.name} (${c.symbol})
+              <p className="font-bold text-lg flex-grow cursor-pointer text-ellipsis" onClick={onSelect}>
+                {c.name}
               </p>
             </WithTooltip>
             <WithTooltip text="Launched">
@@ -618,13 +618,16 @@ function ClankItem({
                   duration: 1,
                   ease: 'easeInOut',
                 }}
-                className="flex-none rounded-md bg-slate-800 px-2 py-1 text-sm flex gap-2 items-center"
+                className="flex-none rounded-md bg-slate-800 px-2 py-1 text-xs flex gap-2 items-center"
               >
                 <Clock size={16} />
                 {moment(c.created_at).fromNow(true)}
               </motion.div>
             </WithTooltip>
           </div>
+          <p className="font-bold text-xs flex-grow cursor-pointer" onClick={onSelect}>
+            (${c.symbol})
+          </p>
           <div className="flex gap-4 mt-2 text-lg">
             <WithTooltip text="Market Cap">
               <div className="flex items-center gap-1">
@@ -674,8 +677,8 @@ function ClankItem({
 
 function BalanceView({ balance, decimals, priceUsd }: { balance: number, decimals: number, priceUsd: number }) {
   return (
-    <div className="absolute h-10 bottom-0 left-0 w-full bg-gradient-to-bl from-pink-500 to-purple-500  text-white p-1 grid place-items-center">
-      <span className="text-xs">You own {formatBalance(balance, decimals)} (${formatPrice(priceUsd * balance / 10**decimals)})</span>
+    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-bl from-pink-500 to-purple-500  text-white p-1 grid place-items-center">
+      <span className="text-xs">you own ${formatPrice(priceUsd * balance / 10**decimals)}</span>
     </div>
   )
 }
@@ -1115,7 +1118,7 @@ function AnonCast({ cast, isParent }: { cast: CastWithInteractions, isParent?: b
           >
             <div className="w-full">
               <div className="w-full">
-                <div className="w-full font-bold text-lg">
+                <div className="w-full font-bold">
                   {cast.author.display_name}
                 </div>
                 <div className="w-full flex items-center text-white/50 text-sm mb-2">
@@ -1123,7 +1126,7 @@ function AnonCast({ cast, isParent }: { cast: CastWithInteractions, isParent?: b
                   <Users size={16} className="ml-1" />
                 </div>
                 {cast.text && (
-                  <p className="text-white leading-tight">{cleanText(cast.text)}</p>
+                  <p className="text-white leading-tight text-xs">{cleanText(cast.text)}</p>
                 )}
                 {false && cast.embeds.map((embed, i) => {
                   if (embed.hasOwnProperty('cast')) {
