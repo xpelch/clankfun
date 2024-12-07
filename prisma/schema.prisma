@@ -18,7 +18,7 @@ model Clanker {
   symbol          String
   img_url         String?
   pool_address    String
-  cast_hash       String
+  cast_hash       String?
   type            String?
   page            Int
 

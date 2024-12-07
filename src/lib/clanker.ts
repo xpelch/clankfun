@@ -113,7 +113,7 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
 //   }
 // }
 
-async function clankerListAPI(sort: 'desc' | 'asc', page = 1): Promise<APIPage> {
+export async function clankerListAPI(sort: 'desc' | 'asc', page = 1): Promise<APIPage> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=${sort}&page=${page}&type=all`);
   const data = res.data;
   console.log(JSON.stringify(data))

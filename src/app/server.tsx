@@ -274,7 +274,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
-  })
+  }).sort((a, b) => b.marketCap - a.marketCap)
 }
 
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
