@@ -31,7 +31,7 @@ const ClankerSchema = z.object({
   symbol: z.string(),
   img_url: z.string().nullable(),
   pool_address: z.string(),
-  cast_hash: z.string(),
+  cast_hash: z.string().nullable(),
   type: z.string(),
 });
 
@@ -196,7 +196,9 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
   const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
   let cast = null
   try {
-    cast = (await fetchCastsNeynar([clanker.cast_hash]))[0]
+    if (clanker.cast_hash) {
+      cast = (await fetchCastsNeynar([clanker.cast_hash]))[0]
+    }
   } catch(e) {
     console.log(`Error fetching cast for ${clanker.cast_hash}`)
   }
@@ -307,7 +309,7 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
   }) as Clanker[];
 
   const mcaps = await fetchMultiPoolMarketCaps(parsedData.map(d => d.pool_address), parsedData.map(d => d.contract_address))
-  const casts = await fetchCastsNeynar(parsedData.map(d => d.cast_hash))
+  const casts = await fetchCastsNeynar(parsedData.map(d => d.cast_hash).filter(h => h !== null))
   const clankersWithMarketCap = parsedData.map((clanker, i) => {
     return { 
       ...clanker, 

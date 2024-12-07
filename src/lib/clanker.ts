@@ -46,7 +46,7 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
     console.log("Fetching page", page)
     const data = await clankerListAPI('asc', page)
 
-    const clankerPromises = data.data.filter(clanker => clanker.cast_hash !== null).map(async clanker => {
+    const clankerPromises = data.data.map(async clanker => {
       console.log(clanker)
       console.log("--------------")
 
@@ -78,7 +78,7 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
             symbol: clanker.symbol,
             img_url: clanker.img_url,
             pool_address: clanker.pool_address,
-            cast_hash: clanker.cast_hash!,
+            cast_hash: clanker.cast_hash,
             type: clanker.type,
             page: page
           }
