@@ -460,8 +460,8 @@ export function HotFeed() {
         >
           <ClankItem
             c={dispClankers[0]}
-            onSelect={() => setDetailClanker(clankers[0] ?? null)}
-            onApe={(eth) => onApe(clankers[0]!, eth)}
+            onSelect={() => setDetailClanker(dispClankers[0] ?? null)}
+            onApe={(eth) => onApe(dispClankers[0]!, eth)}
             balance={balances[dispClankers[0].contract_address]}
             onHover={setHover}
           />
