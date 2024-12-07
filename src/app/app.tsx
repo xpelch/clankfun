@@ -374,7 +374,9 @@ export function TopFeed() {
 }
 
 export function HotFeed() {
+  const [isHover, setHover] = useState<boolean>(false);
   const [clankers, setClankers] = useState<ClankerWithData[]>([]);
+  const [dispClankers, setDispClankers] = useState<ClankerWithData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const [detailClanker, setDetailClanker] = useState<ClankerWithData | null>(null)
@@ -382,6 +384,13 @@ export function HotFeed() {
 
   const { address } = useAccount()
   const [balances, setBalances] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    if (isHover) {
+      return;
+    }
+    setDispClankers(clankers)
+  }, [clankers, isHover])
 
   useEffect(() => {
     async function checkBalance() {
@@ -420,6 +429,10 @@ export function HotFeed() {
     // Listen for new clankers
     socket.on('clankers', (clanker) => {
       console.log('New trade:', clanker.contract_address);
+      if (isHover) {
+        console.log('Ignoring new trade, user is currently hovering over a clanker');
+        return;
+      }
       void processNewLiveTrade(clanker.contract_address);
     });
 
@@ -436,29 +449,31 @@ export function HotFeed() {
 
   return (
     <div className="w-full">
-      {clankers.length === 0 && (
+      {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
       <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {clankers[0] && <motion.div
-          key={clankers[0].contract_address}
+        {dispClankers[0] && <motion.div
+          key={dispClankers[0].contract_address}
           animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 0.4 }}
         >
           <ClankItem
-            c={clankers[0]}
+            c={dispClankers[0]}
             onSelect={() => setDetailClanker(clankers[0] ?? null)}
             onApe={(eth) => onApe(clankers[0]!, eth)}
-            balance={balances[clankers[0].contract_address]}
+            balance={balances[dispClankers[0].contract_address]}
+            onHover={setHover}
           />
         </motion.div>}
-        {clankers.slice(1).map((item, i) => (
+        {dispClankers.slice(1).map((item, i) => (
           <ClankItem
             key={i + 1}
             c={item}
             onSelect={() => setDetailClanker(item)}
             onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
+            onHover={setHover}
           />
         ))}
       </motion.div>
@@ -508,8 +523,21 @@ function formatPrice(price: number) {
   }
 }
 
-function ClankItem({ c, onSelect, onApe, balance }: { c: ClankerWithData, onSelect?: () => void, onApe: (eth: number) => void, balance?: number }) {
+function ClankItem({ 
+  c, 
+  onSelect, 
+  onApe, 
+  balance,
+  onHover
+}: { 
+  c: ClankerWithData, 
+  onSelect?: () => void, 
+  onApe: (eth: number) => void, 
+  balance?: number,
+  onHover?: (isHovered: boolean) => void
+}) {
   const { toast } = useToast()
+  const [isHovered, setIsHovered] = useState(false)
 
   function copyAddressToClipboard() {
     void navigator.clipboard.writeText(c.contract_address);
@@ -519,8 +547,22 @@ function ClankItem({ c, onSelect, onApe, balance }: { c: ClankerWithData, onSele
     })
   }
 
+  const handleMouseEnter = () => {
+    setIsHovered(true)
+    onHover?.(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsHovered(false)
+    onHover?.(false)
+  }
+
   return (
-    <div className="w-full flex flex-col md:flex-row p-4 bg-slate-950 rounded">
+    <div
+      className={`w-full flex flex-col md:flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className="mb-4 md:mb-0 w-full md:w-40 md:h-40 lg:w-48 lg:h-48 flex-none flex items-center justify-center overflow-hidden rounded">
         <WithTooltip text={`Trade ${c.name}`}>
         <div className="w-full h-full" onClick={onSelect}>
@@ -819,17 +861,10 @@ const ReactionStat = ({ icon: Icon, count, id }: { icon: React.ReactNode, count:
   );
 };
 
-import { useAccount, useCall, useChainId } from "wagmi";
-import { type PriceResponse } from "~/types";
+import { useAccount } from "wagmi";
 import { SwapInterface } from "./swap";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import { debounce, set } from "lodash";
-import { check } from "prettier";
-// import QuoteView from "~/components/0xswap/quote";
-// import PriceView from "~/components/0xswap/price";
 
 function BuyModal({ 
   clanker, 
