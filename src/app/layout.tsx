@@ -8,6 +8,7 @@ import { Poppins } from "next/font/google";
 import { type Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster"
 import { Web3Provider } from "./web3provider";
+import { useEffect } from "react";
 
 const firaCode = Poppins({
   weight: "400",
@@ -51,6 +52,11 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
+  useEffect(() => {
+    console.log("Starting up cfun")
+  }, [])
+
   return (
       <html lang="en" className={`${firaCode.variable} dark`}>
         <body>
