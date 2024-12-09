@@ -559,9 +559,10 @@ function ClankItem({
 
   return (
     <div
-      className={`w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
+      className={`cursor-pointer w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={onSelect}
     >
       <div className="mb-4 md:mb-0 w-36 h-36 flex-none flex items-center justify-center overflow-hidden rounded">
         <WithTooltip text={`Trade ${c.name}`}>
