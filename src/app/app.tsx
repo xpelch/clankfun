@@ -773,7 +773,7 @@ function Nav({
   return (
     <nav className="w-full flex flex-col gap-2 sticky top-0 bg-[#090F11] pb-2 z-[9]">
       <div className="flex items-center gap-4 md:mb-4 text-white font-bold text-2xl">
-        <div className="flex-grow flex flex-row gap-2 items-center">
+        {/* <div className="flex-grow flex flex-row gap-2 items-center">
           <Logo />
           <div className="flex-col">
             <h1 className="text-xl">
@@ -783,6 +783,9 @@ function Nav({
               find and trade hot memes on Base
             </p>
           </div>
+        </div> */}
+        <div className="flex-grow flex">
+          <ClankfunLogo />
         </div>
         <CastButtonDialog refreshing={refreshing} />
         <div className="text-sm flex-none">
@@ -945,6 +948,7 @@ import { SwapInterface } from "./swap";
 import { Input } from "~/components/ui/input";
 import { debounce, set } from "lodash";
 import { CastCard } from "./components/CastCard";
+import { ClankfunLogo } from "./components/Logo";
 
 function BuyModal({ 
   clanker, 
