@@ -566,15 +566,29 @@ function ClankItem({
 
   return (
     <motion.div
-      className={`item_bg cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'}`}
+      className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}
-        whileHover={{
-          rotate: 2,
-          scale: 1.05
-        }}
+      whileHover={{
+        rotate: 2,
+        scale: 1.05
+      }}
     >
+      <motion.div
+        style={{
+          position: 'absolute',
+          right: 12,
+          top: 12,
+          fontWeight: 500,
+          fontSize: 13,
+          textTransform: 'uppercase',
+        }}
+        animate={moment(c.created_at).isBefore(moment().subtract(10, 'minutes')) ? { opacity: 1 } : { opacity: [0, 1, 0], transition: { repeat: Infinity, duration: 1 } }}
+        className={moment(c.created_at).isBefore(moment().subtract(10, 'minutes')) ? 'text-white/50' : 'text-cyan-400'}
+      >
+        {moment(c.created_at).fromNow()}
+      </motion.div>
       <div className="item_image flex items-center justify-center">
         {c.img_url ? <img src={c.img_url} alt="" className="w-full h-full object-contain" /> : 
         <div className="bg-purple-500 w-full h-full grid place-items-center">
@@ -594,20 +608,23 @@ function ClankItem({
           <div className="item_content_stats">
             <div className="item_stat text-[#4EE7FB]">
               <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+                <path fillRule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
               </svg>
               <div className="item_stat_text">
                 {formatPrice(c.marketCap)}
               </div>
             </div>
-            {c.cast && <div className="item_stat text-[#6BFFBC]">
+            {c.cast && <motion.div
+              animate={c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 100 ? { scale: [1, 1.2, 1], transition: { repeat: Infinity, duration: 1 } } : {}}
+              className="item_stat text-[#6BFFBC]"
+            >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
               </svg>
-              <div className="item_stat_text">
+              <div className="item_stat_text text-[#6BFFBC]">
                 {c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}
               </div>
-            </div>}
+            </motion.div>}
           </div>
         </div>
         <div className="item_content_line w-full"/>
