@@ -4,15 +4,17 @@
 import "~/styles/globals.css";
 // import '@rainbow-me/rainbowkit/styles.css';
 
-import { Poppins } from "next/font/google";
 import { type Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster"
 import { Web3Provider } from "./web3provider";
 
-const firaCode = Poppins({
-  weight: "400",
+import { Geist } from "next/font/google";
+
+const geist = Geist({
+  weight: "variable",
+  style: ["normal"],
   subsets: ["latin"],
-  variable: "--font-fira-code",
+  variable: "--font-geist",
 });
 
 const APP_NAME = "clank.fun";
@@ -53,7 +55,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 
   return (
-      <html lang="en" className={`${firaCode.variable} dark`}>
+      <html lang="en" className={`${geist.variable} dark`}>
         <body>
           <Web3Provider>
             {children}

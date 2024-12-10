@@ -43,6 +43,13 @@ function cleanText(text: string) {
   return cleaned;
 }
 
+function truncate(text: string, length: number) {
+  if (text.length > length) {
+    return text.slice(0, length) + "...";
+  }
+  return text;
+}
+
 function cleanTicker(text: string) {
   if (text.length > 13) {
     return text.slice(0, 13) + "...";
@@ -67,7 +74,7 @@ export function App() {
   }
 
   return (
-    <div className="w-full flex justify-center min-h-screen bg-gradient-to-b from-slate-900 to-slate-900 p-2 lg:p-6">
+    <div className="w-full flex justify-center min-h-screen bg-[#090F11] p-2 lg:p-6">
       <div className="w-full">
         <Nav 
           refreshing={false} 
@@ -558,121 +565,172 @@ function ClankItem({
   }
 
   return (
-    <div
-      className={`cursor-pointer w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
+    <motion.div
+      className={`item_bg cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}
+        whileHover={{
+          rotate: 2,
+          scale: 1.05
+        }}
     >
-      <div className="mb-4 md:mb-0 w-36 h-36 flex-none flex items-center justify-center overflow-hidden rounded">
-        <WithTooltip text={`Trade ${c.name}`}>
-        <div className="w-full h-full" onClick={onSelect}>
-          {c.img_url ? (
-            <motion.div
-              className="relative w-full h-full"
-              whileHover={{
-                rotate: 5,
-                scale: 0.9,
-                rotateX: 10,
-                rotateY: 10,
-              }}
-            >
-              <img
-                src={c.img_url ?? ""}
-                alt=""
-                className="cursor-pointer w-full h-full object-contain"
-              />
-              {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
-            </motion.div>
-          ) : (
-            <motion.div
-              className="relative w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
-              whileHover={{
-                rotate: 5,
-                scale: 0.9,
-                rotateX: 10,
-                rotateY: 10,
-              }}
-            >
-              <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
-              {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
-            </motion.div>
-          )}
-        </div>
-        </WithTooltip>
-      </div> 
-      <div className="flex-grow pl-2">
-        <div className="pl-2">
-          <div className="flex w-full items-start gap-2">
-            <WithTooltip text={`Trade ${c.name}`}>
-              <p className="font-bold text-lg flex-grow cursor-pointer text-ellipsis" onClick={onSelect}>
-                {c.name}
-              </p>
-            </WithTooltip>
-            <WithTooltip text="Launched">
-              <motion.div
-                animate={{
-                  backgroundColor: moment(c.created_at).isAfter(moment().subtract(10, 'minutes')) ? ['#9f7aea', '#c084fc', '#9f7aea'] : [],
-                }}
-                transition={{
-                  repeat: Infinity,
-                  duration: 1,
-                  ease: 'easeInOut',
-                }}
-                className="flex-none rounded-md bg-slate-800 px-2 py-1 text-xs flex gap-2 items-center"
-              >
-                <Clock size={16} />
-                {moment(c.created_at).fromNow(true)}
-              </motion.div>
-            </WithTooltip>
-          </div>
-          <p className="font-bold text-xs flex-grow cursor-pointer" onClick={onSelect}>
-            (${c.symbol})
-          </p>
-          <div className="flex gap-4 mt-2 text-lg">
-            <WithTooltip text="Market Cap">
-              <div className="flex items-center gap-1">
-                <DollarSign size={16} />
-                <span>{c.marketCap === -1 ? "N/A" : `${formatPrice(c.marketCap)}`}</span>
-              </div>
-            </WithTooltip>
-              {c.cast && (
-                <WithTooltip text="Total cast engagement">
-                <motion.div
-                  animate={{
-                    scale: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [1, 1.2, 1] : [],
-                    color: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [
-                      "#ff0000",
-                      "#ffa500",
-                      "#ffff00",
-                      "#008000",
-                      "#0000ff",
-                      "#4b0082",
-                      "#ee82ee",
-                      "#ff0000",
-                    ] : ["#ffffff"],
-                  }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 1,
-                    ease: "easeInOut",
-                  }}
-                  className="flex items-center gap-1"
-                >
-                  <Zap size={16} />
-                  <span>{c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}</span>
-                </motion.div>
-                </WithTooltip>
-              )}
-          </div>
-        </div>
-        {c.cast && (
-          <WithTooltip text="View on Warpcast">
-            <AnonCast cast={c.cast} />
-          </WithTooltip>
-        )}
+      <div className="item_image flex items-center justify-center">
+        {c.img_url ? <img src={c.img_url} alt="" className="w-full h-full object-contain" /> : 
+        <div className="bg-purple-500 w-full h-full grid place-items-center">
+          ${c.symbol}
+        </div>}
       </div>
-    </div>
+      <div className="item_content flex-grow">
+        <div className="item_content_info font-bold w-full">
+          <div className="item_content_title">
+            <div className="item_title_tagline">
+              ${c.symbol}
+            </div>
+            <div className={`item_title_title ${c.name.length > 20 ? "text-[20px]" : "text-[28px]"} truncate`}>
+              {c.name}
+            </div>
+          </div>
+          <div className="item_content_stats">
+            <div className="item_stat text-[#4EE7FB]">
+              <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+              </svg>
+              <div className="item_stat_text">
+                {formatPrice(c.marketCap)}
+              </div>
+            </div>
+            {c.cast && <div className="item_stat text-[#6BFFBC]">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
+              </svg>
+              <div className="item_stat_text">
+                {c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}
+              </div>
+            </div>}
+          </div>
+        </div>
+        <div className="item_content_line w-full"/>
+        {c.cast ? <div className="item_content_user w-full">
+          <CastCard cast={c.cast} />
+        </div> : <div className="item_content_user flex-grow"/>}
+      </div>
+    </motion.div>
+    // <div
+    //   className={`cursor-pointer w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
+    //   onMouseEnter={handleMouseEnter}
+    //   onMouseLeave={handleMouseLeave}
+    //   onClick={onSelect}
+    // >
+    //   <div className="mb-4 md:mb-0 w-36 h-36 flex-none flex items-center justify-center overflow-hidden rounded">
+    //     <WithTooltip text={`Trade ${c.name}`}>
+    //     <div className="w-full h-full" onClick={onSelect}>
+    //       {c.img_url ? (
+    //         <motion.div
+    //           className="relative w-full h-full"
+    //           whileHover={{
+    //             rotate: 5,
+    //             scale: 0.9,
+    //             rotateX: 10,
+    //             rotateY: 10,
+    //           }}
+    //         >
+    //           <img
+    //             src={c.img_url ?? ""}
+    //             alt=""
+    //             className="cursor-pointer w-full h-full object-contain"
+    //           />
+    //           {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
+    //         </motion.div>
+    //       ) : (
+    //         <motion.div
+    //           className="relative w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
+    //           whileHover={{
+    //             rotate: 5,
+    //             scale: 0.9,
+    //             rotateX: 10,
+    //             rotateY: 10,
+    //           }}
+    //         >
+    //           <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
+    //           {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
+    //         </motion.div>
+    //       )}
+    //     </div>
+    //     </WithTooltip>
+    //   </div> 
+    //   <div className="flex-grow pl-2">
+    //     <div className="pl-2">
+    //       <div className="flex w-full items-start gap-2">
+    //         <WithTooltip text={`Trade ${c.name}`}>
+    //           <p className="font-bold text-lg flex-grow cursor-pointer text-ellipsis" onClick={onSelect}>
+    //             {c.name}
+    //           </p>
+    //         </WithTooltip>
+    //         <WithTooltip text="Launched">
+    //           <motion.div
+    //             animate={{
+    //               backgroundColor: moment(c.created_at).isAfter(moment().subtract(10, 'minutes')) ? ['#9f7aea', '#c084fc', '#9f7aea'] : [],
+    //             }}
+    //             transition={{
+    //               repeat: Infinity,
+    //               duration: 1,
+    //               ease: 'easeInOut',
+    //             }}
+    //             className="flex-none rounded-md bg-slate-800 px-2 py-1 text-xs flex gap-2 items-center"
+    //           >
+    //             <Clock size={16} />
+    //             {moment(c.created_at).fromNow(true)}
+    //           </motion.div>
+    //         </WithTooltip>
+    //       </div>
+    //       <p className="font-bold text-xs flex-grow cursor-pointer" onClick={onSelect}>
+    //         (${c.symbol})
+    //       </p>
+    //       <div className="flex gap-4 mt-2 text-lg">
+    //         <WithTooltip text="Market Cap">
+    //           <div className="flex items-center gap-1">
+    //             <DollarSign size={16} />
+    //             <span>{c.marketCap === -1 ? "N/A" : `${formatPrice(c.marketCap)}`}</span>
+    //           </div>
+    //         </WithTooltip>
+    //           {c.cast && (
+    //             <WithTooltip text="Total cast engagement">
+    //             <motion.div
+    //               animate={{
+    //                 scale: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [1, 1.2, 1] : [],
+    //                 color: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [
+    //                   "#ff0000",
+    //                   "#ffa500",
+    //                   "#ffff00",
+    //                   "#008000",
+    //                   "#0000ff",
+    //                   "#4b0082",
+    //                   "#ee82ee",
+    //                   "#ff0000",
+    //                 ] : ["#ffffff"],
+    //               }}
+    //               transition={{
+    //                 repeat: Infinity,
+    //                 duration: 1,
+    //                 ease: "easeInOut",
+    //               }}
+    //               className="flex items-center gap-1"
+    //             >
+    //               <Zap size={16} />
+    //               <span>{c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}</span>
+    //             </motion.div>
+    //             </WithTooltip>
+    //           )}
+    //       </div>
+    //     </div>
+    //     {c.cast && (
+    //       <WithTooltip text="View on Warpcast">
+    //         <AnonCast cast={c.cast} />
+    //       </WithTooltip>
+    //     )}
+    //   </div>
+    // </div>
   )
 }
 
@@ -696,7 +754,7 @@ function Nav({
   setSearchQuery: (query: string) => void
 }) {
   return (
-    <nav className="w-full flex flex-col gap-2 sticky top-0 bg-slate-900 pb-2 z-[9]">
+    <nav className="w-full flex flex-col gap-2 sticky top-0 bg-[#090F11] pb-2 z-[9]">
       <div className="flex items-center gap-4 md:mb-4 text-white font-bold text-2xl">
         <div className="flex-grow flex flex-row gap-2 items-center">
           <Logo />
@@ -869,6 +927,7 @@ import { useAccount } from "wagmi";
 import { SwapInterface } from "./swap";
 import { Input } from "~/components/ui/input";
 import { debounce, set } from "lodash";
+import { CastCard } from "./components/CastCard";
 
 function BuyModal({ 
   clanker, 

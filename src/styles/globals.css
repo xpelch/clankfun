@@ -64,3 +64,169 @@
     @apply bg-background text-foreground;
   }
 }
+
+.item_bg {
+  /* Auto layout */
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 8px;
+  gap: 16px;
+  isolation: isolate;
+
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.item_image {
+  box-sizing: border-box;
+  width: 188px;
+  height: 188px;
+
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 3px;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  z-index: 0;
+}
+
+.item_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0px;
+  gap: 16px;
+
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 1;
+  z-index: 1;
+}
+
+.item_content_info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 16px;
+
+  margin: 0 auto;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.item_content_title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 8px;
+
+  width: 100%;
+
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.item_content_stats {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 16px;
+
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.item_stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 4px;
+
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.item_stat_text {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 100%;
+
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+/* Tagline */
+.item_title_tagline {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 100%;
+  font-feature-settings: 'sinf' on;
+  color: #B4A2FF;
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.item_title_title {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%;
+  width: 100%;
+  color: #FFFFFF;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item_content_line {
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+.item_content_user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 8px;
+
+  margin: 0 auto;
+
+  border-radius: 5px;
+  flex: none;
+  order: 2;
+  align-self: stretch;
+  flex-grow: 0;
+}
