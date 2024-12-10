@@ -163,7 +163,6 @@
 }
 
 .item_stat_text {
-  font-family: 'Geist';
   font-style: normal;
   font-weight: 500;
   font-size: 14px;
@@ -176,7 +175,6 @@
 
 /* Tagline */
 .item_title_tagline {
-  font-family: 'Geist';
   font-style: normal;
   font-weight: 500;
   font-size: 13px;
@@ -190,7 +188,6 @@
 }
 
 .item_title_title {
-  font-family: 'Geist';
   font-style: normal;
   font-weight: 500;
   line-height: 100%;

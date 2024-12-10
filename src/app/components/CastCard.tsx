@@ -18,7 +18,6 @@ const castInfoStyle = {
 }
 
 const castInfoTextStyle = {
-  fontFamily: "'Geist'",
   fontStyle: 'normal',
   fontWeight: 400,
   fontSize: '11px',
