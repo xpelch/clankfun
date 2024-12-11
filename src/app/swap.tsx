@@ -259,6 +259,16 @@ export function SwapInterface({
     debouncedUpdateAmount(amountText);
   }, [amountText, debouncedUpdateAmount]);
 
+  function copyCA() {
+    if (clanker.contract_address) {
+      navigator.clipboard.writeText(clanker.contract_address);
+      toast({
+        title: "Copied Contract Address",
+        description: `The contract address has been copied to your clipboard (${clanker.contract_address.slice(0, 6)}...)`,
+      })
+    }
+  }
+
   const actionPending = transactionPending || signPending;
   const hasFunds = balances().buying >= amount;
 
@@ -270,6 +280,9 @@ export function SwapInterface({
         </FButton>
         <FButton onClick={() => handleTabSwitch(false)} selected={!isBuying}>
           Sell
+        </FButton>
+        <FButton onClick={() => copyCA()}>
+          Copy CA
         </FButton>
       </div>
       <div className="flex flex-col gap-1">
