@@ -119,7 +119,7 @@ function ClankfunShill() {
       }}
     >
       <div className="flex justify-start items-center gap-1.5 flex-grow">
-        <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />
+        {data && <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />}
         <div className="flex justify-start items-center gap-2 flex-grow">
           <div className="text-white flex-grow text-sm font-semibold font-['Geist'] uppercase leading-[14px]">$clankfun</div>
           {data && <div className="text-white/70 text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(data.marketCap)}</div>}
