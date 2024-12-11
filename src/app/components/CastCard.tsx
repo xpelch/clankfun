@@ -1,6 +1,7 @@
 "use client"
 
 import { type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2"
+import { WithTooltip } from "../components"
 
 type Props = {
   cast: CastWithInteractions  
@@ -36,6 +37,7 @@ export function CastCard({
   cast
 }: Props) {
   return(
+    <WithTooltip text="View on Warpcast">
     <div style={{
       display: 'flex',
       flexDirection: 'row', 
@@ -129,5 +131,6 @@ export function CastCard({
         </div>
       </div>
     </div>
+    </WithTooltip>
   )
 }

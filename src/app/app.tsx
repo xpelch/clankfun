@@ -566,7 +566,7 @@ function ClankItem({
 
   return (
     <motion.div
-      className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'}`}
+      className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'} overflow-hidden`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}
@@ -597,12 +597,12 @@ function ClankItem({
       </div>
       <div className="item_content flex-grow">
         <div className="item_content_info font-bold w-full">
-          <div className="item_content_title">
-            <div className="item_title_tagline">
+          <div className="item_content_title overflow-hidden">
+            <div className="item_title_tagline truncate">
               ${c.symbol}
             </div>
-            <div className={`item_title_title ${c.name.length > 20 ? "text-[20px]" : "text-[28px]"} truncate`}>
-              {c.name}
+            <div className={`text-clip item_title_title ${c.name.length > 20 ? (c.name.length > 30 ? "text-[15px]" : "text-[20px]") : "text-[28px]"}`}>
+              {c.name + c.name}
             </div>
           </div>
           <div className="item_content_stats">
@@ -614,23 +614,31 @@ function ClankItem({
                 {formatPrice(c.marketCap)}
               </div>
             </div>
-            {c.cast && <motion.div
-              animate={c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 100 ? { scale: [1, 1.2, 1], transition: { repeat: Infinity, duration: 1 } } : {}}
-              className="item_stat text-[#6BFFBC]"
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
-              </svg>
-              <div className="item_stat_text text-[#6BFFBC]">
-                {c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}
-              </div>
-            </motion.div>}
+            {c.cast && 
+            <WithTooltip text="Engagement: # likes, recasts and replies">
+              <motion.div
+                animate={c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 100 ? { scale: [1, 1.2, 1], transition: { repeat: Infinity, duration: 1 } } : {}}
+                className="item_stat text-[#6BFFBC]"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
+                </svg>
+                <div className="item_stat_text text-[#6BFFBC]">
+                  {c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}
+                </div>
+              </motion.div>
+            </WithTooltip>
+            }
           </div>
         </div>
         <div className="item_content_line w-full"/>
-        {c.cast ? <div className="item_content_user w-full">
-          <CastCard cast={c.cast} />
-        </div> : <div className="item_content_user flex-grow"/>}
+        {c.cast ? (
+            <div className="item_content_user w-full">
+                <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
+                  <CastCard cast={c.cast} />
+                </a>
+            </div>
+        ) : <div className="item_content_user flex-grow"/>}
       </div>
     </motion.div>
     // <div
