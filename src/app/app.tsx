@@ -82,7 +82,7 @@ export function App() {
           setView={setView} 
           setSearchQuery={setSearchQuery}
         />
-        <div className="md:hidden">
+        <div className="md:hidden px-2">
           <ClankfunShill/>
         </div>
         <div className="fixed bottom-10 right-10 hidden md:block z-[30]">
@@ -109,50 +109,45 @@ function ClankfunShill() {
   }, [])
 
   return (
-    <div className="w-full">
-      {data && (
-        <motion.div
-          onClick={() => setDetailClanker(data)}
-          style={{
-            // skewX: "-3deg",
-            // skewY: "4deg",
-          }}
-          whileHover={{
-            scale: 1.1,
-            rotate: 3,
-          }}
-          className="cursor-pointer w-full flex gap-2 bg-purple-800 px-2 py-2 rounded-md mb-2 items-center border-2 border-purple-600"
-        >
-          <img src={data.img_url!} alt="Clankfun" className="w-8 h-8 rounded" />
-          <div className="flex-grow">
-            <span className="font-bold">$CLANKFUN</span>
-          </div>
-          <div className="mr-2">
-            ${formatPrice(data.marketCap)}
-          </div>
-          <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
-            <WithTooltip text="View on DexScreener">
-              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
-                <ChartAreaIcon size={34} />
-              </Button>
-            </WithTooltip>
-          </a>
-          <a href="https://t.me/clankfunn" target="_blank" rel="noopener noreferrer">
-            <WithTooltip text="Join the community">
-              <Button size="icon" className="bg-purple-500 hover:bg-purple-400 text-white">
-                <MessageCircle size={34} />
-              </Button>
-            </WithTooltip>
-          </a>
-          {detailClanker && <BuyModal
-            clanker={detailClanker}
-            onOpenChange={() => setDetailClanker(null)}
-            apeAmount={0}
-            onAped={() => { void 0 }}
-          />}
-        </motion.div>
-      )}
-    </div>
+    <motion.div
+      className="w-full h-10 p-1 bg-[#7962d9] rounded-[11px] flex justify-center items-center gap-6 cursor-pointer"
+      onClick={() => setDetailClanker(data)}
+      whileHover={{
+        scale: 1.05,
+        rotate: 2,
+        transition: { duration: 0.2 },
+      }}
+    >
+      <div className="flex justify-start items-center gap-1.5 flex-grow">
+        <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />
+        <div className="flex justify-start items-center gap-2 flex-grow">
+          <div className="text-white flex-grow text-sm font-semibold font-['Geist'] uppercase leading-[14px]">$clankfun</div>
+          {data && <div className="text-white/70 text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(data.marketCap)}</div>}
+        </div>
+      </div>
+      <div className="flex justify-start items-center gap-1">
+        <a href="https://dexscreener.com/base/0x1d008f50fb828ef9debbbeae1b71fffe929bf317" target="_blank" rel="noopener noreferrer">
+          <WithTooltip text="View on DexScreener">
+            <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
+              <ChartAreaIcon size={24} />
+            </div>
+          </WithTooltip>
+        </a>
+        <a href="https://t.me/clankfunn" target="_blank" rel="noopener noreferrer">
+          <WithTooltip text="Join the community">
+            <div className="w-[30px] h-[30px] px-[9px] bg-[#080d0f]/10 rounded-lg flex justify-center items-center gap-1">
+              <MessageCircle size={24} />
+            </div>
+          </WithTooltip>
+        </a>
+      </div>
+      {detailClanker && <BuyModal
+        clanker={detailClanker}
+        onOpenChange={() => setDetailClanker(null)}
+        apeAmount={0}
+        onAped={() => { void 0 }}
+      />}
+    </motion.div>
   )
 }
 
@@ -781,7 +776,7 @@ function Nav({
             selected={view === "hot"}
           >
             <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
+              <path fillRule="evenodd" clip-rule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
             </svg>
             Hot
           </FButton>
