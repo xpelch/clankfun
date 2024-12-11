@@ -593,7 +593,7 @@ function ClankItem({
             <div className="item_title_tagline truncate">
               ${c.symbol}
             </div>
-            <div className={`text-clip item_title_title ${c.name.length > 20 ? (c.name.length > 30 ? "text-[15px]" : "text-[20px]") : "text-[28px]"}`}>
+            <div className={`text-clip item_title_title text-[18px] md:text-[28px]`}>
               {c.name}
             </div>
           </div>
