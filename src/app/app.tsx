@@ -576,16 +576,8 @@ function ClankItem({
       }}
     >
       <motion.div
-        style={{
-          position: 'absolute',
-          right: 12,
-          top: 12,
-          fontWeight: 500,
-          fontSize: 13,
-          textTransform: 'uppercase',
-        }}
         animate={moment(c.created_at).isBefore(moment().subtract(10, 'minutes')) ? { opacity: 1 } : { opacity: [0, 1, 0], transition: { repeat: Infinity, duration: 1 } }}
-        className={moment(c.created_at).isBefore(moment().subtract(10, 'minutes')) ? 'text-white/50' : 'text-cyan-400'}
+        className={`absolute right-1 md:right-3 top-1 md:top-3 font-medium text-xs uppercase ${moment(c.created_at).isBefore(moment().subtract(10, 'minutes')) ? 'text-white/50' : 'text-cyan-400'}`}
       >
         {moment(c.created_at).fromNow()}
       </motion.div>
@@ -602,7 +594,7 @@ function ClankItem({
               ${c.symbol}
             </div>
             <div className={`text-clip item_title_title ${c.name.length > 20 ? (c.name.length > 30 ? "text-[15px]" : "text-[20px]") : "text-[28px]"}`}>
-              {c.name + c.name}
+              {c.name}
             </div>
           </div>
           <div className="item_content_stats">
