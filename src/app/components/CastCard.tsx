@@ -48,7 +48,6 @@ export function CastCard({
       width: '100%',
       borderRadius: 5,
       flex: 'none',
-      order: 2,
       alignSelf: 'stretch',
       flexGrow: 0,
     }}>

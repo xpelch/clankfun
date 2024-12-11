@@ -207,7 +207,6 @@ function SearchResults({ query }: { query: string }) {
             key={i} 
             c={item} 
             onSelect={() => setDetailClanker(item)} 
-            onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
           />
         ))}
@@ -286,7 +285,6 @@ export function LatestFeed() {
             key={i} 
             c={item} 
             onSelect={() => setDetailClanker(item)} 
-            onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
           />
         ))}
@@ -357,7 +355,6 @@ export function TopFeed() {
             key={i} 
             c={item} 
             onSelect={() => setDetailClanker(item)} 
-            onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
           />
         ))}
@@ -468,7 +465,6 @@ export function HotFeed() {
           <ClankItem
             c={dispClankers[0]}
             onSelect={() => setDetailClanker(dispClankers[0] ?? null)}
-            onApe={(eth) => onApe(dispClankers[0]!, eth)}
             balance={balances[dispClankers[0].contract_address]}
             onHover={setHover}
           />
@@ -478,7 +474,6 @@ export function HotFeed() {
             key={i + 1}
             c={item}
             onSelect={() => setDetailClanker(item)}
-            onApe={(eth) => onApe(item, eth)}
             balance={balances[item.contract_address]}
             onHover={setHover}
           />
@@ -530,18 +525,18 @@ function formatPrice(price: number) {
   }
 }
 
-function ClankItem({ 
+export function ClankItem({ 
   c, 
   onSelect, 
-  onApe, 
   balance,
-  onHover
+  onHover,
+  withoutCast
 }: { 
   c: ClankerWithData, 
   onSelect?: () => void, 
-  onApe: (eth: number) => void, 
   balance?: number,
   onHover?: (isHovered: boolean) => void
+  withoutCast?: boolean
 }) {
   const { toast } = useToast()
   const [isHovered, setIsHovered] = useState(false)
@@ -624,7 +619,7 @@ function ClankItem({
           </div>
         </div>
         <div className="item_content_line w-full"/>
-        {c.cast ? (
+        {c.cast && !withoutCast ? (
             <div className="item_content_user w-full">
                 <a href={`https://warpcast.com/${c.cast.author.username}/${c.cast.hash.slice(0, 10)}`} target="_blank" rel="noopener noreferrer" className="item_content_user w-full">
                   <CastCard cast={c.cast} />
@@ -950,26 +945,39 @@ function BuyModal({
             allow="clipboard-write"
           >
           </iframe>}
-          <div className="flex-grow">
-            <div className="flex gap-4 items-center text-xl mb-2">
-              {clanker?.img_url && <img src={clanker?.img_url} alt="" className="w-12 h-12 rounded-full" />}
-              <div>
-                <p className="md:text-2xl">
-                  trade <span className="font-bold">{clanker?.name}</span>
-                </p>
-                <p className="text-white/50 text-xs md:text-sm">
-                  Swaps routed through 0x protocol
-                </p>
+          {clanker && <div className="flex-grow flex flex-col gap-4">
+            <div className="h-20 justify-start items-center gap-3 inline-flex">
+              {clanker.img_url ? 
+              <img className="w-20 h-20 relative rounded-[3px] border border-white/5" src={clanker.img_url ?? ""} />
+              : 
+              <div className="bg-purple-500 w-20 h-20 grid place-items-center text-xs">
+                ${clanker.symbol}
+              </div>}
+              <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex">
+                <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex">
+                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium font-['Geist'] leading-[13px]">${clanker.symbol}</div>
+                  <div className="self-stretch text-white text-[28px] font-medium font-['Geist'] leading-7">${clanker.name}</div>
+                </div>
+                <div className="self-stretch justify-start items-center gap-4 inline-flex">
+                  <div className="justify-start items-center gap-1 flex">
+                    <div className="text-[#4ee6fb] text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(clanker.marketCap)}</div>
+                  </div>
+                  {clanker.cast && <div className="justify-start items-center gap-[3px] flex">
+                    <div className="text-[#6affbc] text-sm font-medium font-['Geist'] uppercase leading-[14px]">
+                      {clanker.cast.reactions.likes_count + clanker.cast.reactions.recasts_count + clanker.cast.replies.count}
+                    </div>
+                  </div>}
+                </div>
               </div>
             </div>
-            {clanker && 
-              <SwapInterface 
-                clanker={clanker} 
-                apeAmount={apeAmount} 
-                onAped={onAped}
-                onSwapComplete={() => onOpenChange(false)}
-              />}
-          </div>
+            {clanker.cast && <CastCard cast={clanker.cast} />}
+            {clanker && <SwapInterface 
+              clanker={clanker} 
+              apeAmount={apeAmount} 
+              onAped={onAped}
+              onSwapComplete={() => onOpenChange(false)}
+            />}
+          </div>}
         </div>
       </DialogContent>
     </Dialog>

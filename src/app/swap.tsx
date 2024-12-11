@@ -3,9 +3,6 @@
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
 import { debounce } from 'lodash'; 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Input } from "~/components/ui/input";
 import { useAccount, useBalance, useCall, useReadContract, useSendTransaction, useSignTypedData, useSimulateContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ethers } from "ethers";
 import {
@@ -18,17 +15,33 @@ import type { Address, Hex } from "viem";
 import { useToast } from "~/hooks/use-toast";
 import { PriceInput } from "~/components/ui/priceinput";
 import { ConnectKitButton } from "connectkit";
+import { FFromInput, FToInput } from "./components/FSwapper";
+import { FButton } from "./components/FButton";
+import { Button } from "~/components/ui/button";
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
 const ETH_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+
+function formatAmount(amount: number) {
+  if (amount > 100) {
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount)
+  }
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 5,
+  }).format(amount);
+}
 
 function formatUSD(amount: number) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     minimumFractionDigits: 0,
-    maximumFractionDigits: 4,
+    maximumFractionDigits: 2,
   }).format(amount);
 }
 
@@ -60,8 +73,8 @@ export function SwapInterface({
   }, [])
 
   const swapUSDAmount =  isBuying ? amount * ethPrice : buyAmount * ethPrice;
-  const sellTokenName = isBuying ? "WETH" : clanker.symbol;
-  const buyTokenName = isBuying ? clanker.symbol : "WETH";
+  const sellTokenName = isBuying ? "ETH" : clanker.symbol;
+  const buyTokenName = isBuying ? clanker.symbol : "ETH";
 
   const sellTokenAddress = isBuying ? ETH_ADDRESS : clanker.contract_address as `0x${string}`;
 
@@ -75,9 +88,12 @@ export function SwapInterface({
   });
 
   function balances() {
+    const eth = ethBalance ? parseFloat(ethers.formatEther(ethBalance.value)) : 0
+    const token = tokenBalance ? parseFloat(ethers.formatEther(tokenBalance.value)) : 0
     return {
-      eth: ethBalance ? parseFloat(ethers.formatEther(ethBalance.value)) : 0,
-      token: tokenBalance ? parseFloat(ethers.formatEther(tokenBalance.value)) : 0,
+      eth,
+      token,
+      buying: isBuying ? eth : token,
     }
   }
 
@@ -225,8 +241,8 @@ export function SwapInterface({
     startSwap(amount, isBuying);
   }
 
-  const handleTabSwitch = () => {
-    setIsBuying(!isBuying);
+  const handleTabSwitch = (buy: boolean) => {
+    setIsBuying(buy);
     setAmountText("0.00");
     setBuyAmount(0);
   };
@@ -244,115 +260,56 @@ export function SwapInterface({
   }, [amountText, debouncedUpdateAmount]);
 
   const actionPending = transactionPending || signPending;
+  const hasFunds = balances().buying >= amount;
 
   return (
     <div className="flex flex-col gap-4">
-      <Tabs defaultValue="buy" className="w-full">
-        <TabsList>
-          <TabsTrigger value="buy" onClick={handleTabSwitch} className="w-20">
-            Buy
-          </TabsTrigger>
-          <TabsTrigger value="sell" onClick={handleTabSwitch} className="w-20">
-            Sell
-          </TabsTrigger>
-        </TabsList>
-        <div role="tabpanel">
-          <TabsContent value="buy">
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between">
-                <span>From</span>
-              </div>
-              <div className="flex rounded-lg shadow-sm shadow-black/5">
-                <PriceInput
-                  id="input-15"
-                  className="-me-px rounded-e-none shadow-none"
-                  placeholder="enter amount"
-                  value={amountText}
-                  onChange={(e) => setAmountText(e.target.value)}
-                />
-                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  ETH
-                </span>
-              </div>
-              {ethBalance && (amount > parseFloat(ethers.formatEther(ethBalance.value))) && <span className="text-red-500 text-sm">You do not have sufficient funds.</span>}
-              {ethBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(ethBalance.value)}</span>}
-              <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
-                <span>To</span>
-              </div>
-              <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
-                <PriceInput
-                  id="input-15"
-                  className="-me-px rounded-e-none shadow-none"
-                  placeholder="google"
-                  value={buyAmount}
-                  disabled
-                />
-                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  <div className="flex gap-2 items-center">
-                    {clanker.img_url && <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />}
-                    <span className="mr-5">{clanker.symbol}</span>
-                  </div>
-                </span>
-              </div>
-            </div>
-          </TabsContent>
-          <TabsContent value="sell">
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between">
-                <span>From</span>
-              </div>
-              <div className="flex rounded-lg shadow-sm shadow-black/5">
-                <PriceInput
-                  id="input-15"
-                  className="-me-px rounded-e-none shadow-none"
-                  placeholder="google"
-                  value={amountText}
-                  onChange={(e) => setAmountText(e.target.value)}
-                />
-                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  <div className="flex gap-2 items-center">
-                    {clanker.img_url && <img src={clanker.img_url ?? ""} alt={clanker.name} className="w-6 h-6 rounded-full" />}
-                    <span className="mr-5">{clanker.symbol}</span>
-                  </div>
-                </span>
-              </div>
-              {(tokenBalance && amount > parseFloat(ethers.formatEther(tokenBalance.value))) && <span className="text-red-500 text-sm">You do not have sufficient funds</span>}
-              {tokenBalance && <span className="text-gray-500 text-sm">Balance: {ethers.formatEther(tokenBalance.value)}</span>}
-              <div className="flex justify-between items-center gap-2 pointer-events-none mt-2">
-                <span>To</span>
-                <span>ETH</span>
-              </div>
-              <div className="flex rounded-lg shadow-sm shadow-black/5 text-lg">
-                <PriceInput
-                  id="input-15"
-                  className="-me-px rounded-e-none shadow-none"
-                  placeholder="google"
-                  value={buyAmount}
-                  disabled
-                />
-                <span className="-z-10 inline-flex items-center rounded-e-lg border border-input bg-background px-3 text-sm text-muted-foreground">
-                  ETH
-                </span>
-              </div>
-            </div>
-          </TabsContent>
-        </div>
-      </Tabs>
-      <div className="flex justify-between gap-2">
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(25)}>25%</Button>
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(50)}>50%</Button>
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(75)}>75%</Button>
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => handlePercentageChange(100)}>100%</Button>
+      <div className="flex gap-2">
+        <FButton onClick={() => handleTabSwitch(true)} selected={isBuying}>
+          Buy
+        </FButton>
+        <FButton onClick={() => handleTabSwitch(false)} selected={!isBuying}>
+          Sell
+        </FButton>
       </div>
-      {isBuying && <div className="flex justify-between gap-2">
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.01)}>Ape 0.01Ξ</Button>
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.05)}>Ape 0.05Ξ</Button>
-        <Button className="w-full" size="sm" variant="secondary" onClick={() => ape(0.1)}>Ape 0.1Ξ</Button>
-      </div>}
-      <div>
-        {swapUSDAmount > 0 && <span className="text-white text-sm">You will swap {formatUSD(swapUSDAmount)} {sellTokenName} for {buyTokenName}</span>}<br/>
-        {swapUSDAmount > 0 && <span className="text-white/50 text-sm">clank.fun fee: 0.5% ({formatUSD(swapUSDAmount * 0.005)})</span>}
-      </div>
+      <div className="flex flex-col gap-1">
+        <FFromInput
+          value={amountText}
+          onChange={setAmountText}
+          onPercentageClick={handlePercentageChange}
+          tokenName={sellTokenName}
+          tokenImage={isBuying ? "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" : clanker.img_url ?? ""}
+        />
+        <FToInput
+          value={buyAmount}
+          tokenName={buyTokenName}
+          tokenImage={isBuying ? (clanker.img_url ?? "") : "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png"}
+        />
+        {!hasFunds ?
+          <div className="h-[15px] justify-between items-start inline-flex mt-2">
+            <div className="text-white/50 text-[15px] font-normal font-['Geist'] leading-[15px]">You do not have sufficient funds</div>
+          </div>
+        : (
+          <div className="flex flex-col w-full">
+            <div className="h-[15px] justify-between items-start inline-flex mt-2">
+              <div className="text-white/50 text-[15px] font-normal font-['Geist'] leading-[15px]">Balance:</div>
+              <div className="text-white text-[15px] font-normal font-['Geist'] leading-[15px]">{formatAmount(balances().buying)} {sellTokenName}</div>
+            </div>
+            <div className="h-[15px] justify-between items-start inline-flex mt-2">
+              <div className="text-white/50 text-[15px] font-normal font-['Geist'] leading-[15px]">You&apos;ll swap</div>
+              <div className="text-white text-[15px] font-normal font-['Geist'] leading-[15px]">{formatAmount(amount)} {sellTokenName} ({formatUSD(swapUSDAmount)})</div>
+            </div>
+            <div className="h-[15px] justify-between items-start inline-flex mt-2">
+              <div className="text-white/50 text-[15px] font-normal font-['Geist'] leading-[15px]">You&apos;ll receive</div>
+              <div className="text-purple-500 text-[15px] font-normal font-['Geist'] leading-[15px]">~{formatAmount(buyAmount)} {buyTokenName}</div>
+            </div>
+            <div className="h-[15px] justify-between items-start inline-flex mt-2">
+              <div className="text-white/50 text-[15px] font-normal font-['Geist'] leading-[15px]">clank.fun fee</div>
+              <div className="text-white text-[15px] font-normal font-['Geist'] leading-[15px]">0.5% ({formatUSD(swapUSDAmount * 0.005)})</div>
+            </div>
+          </div>
+        )}
+      <div className="mt-3">
       {address ? <ApproveOrReviewButton 
         onClick={initiateSwap} 
         taker={address as Address} 
@@ -361,9 +318,18 @@ export function SwapInterface({
         price={priceRes} 
         userShouldApprove={userShouldApprove}
       /> : 
-      <div className="w-full grid place-items-center">
-        <ConnectKitButton label="Connect Wallet" />
-      </div>}
+        <ConnectKitButton.Custom>
+          {({ isConnected, isConnecting, show, hide, address, ensName, chain }) => {
+            return (
+              <Button onClick={show} className="w-full">
+                {isConnected ? address?.slice(0,5) : "Connect Wallet"}
+              </Button>
+            );
+          }}
+        </ConnectKitButton.Custom>
+      }
+    </div>
+    </div>
     </div>
   );
 }
@@ -393,7 +359,7 @@ function ApproveOrReviewButton({
           // fetch data, when finished, show quote view
           onClick();
         }}
-        className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-25"
+        className="w-full bg-[#7962D9] hover:bg-[#8D72FD] text-white p-2 rounded disabled:opacity-25"
       >
         {disabled ? "Swapping..." : userShouldApprove ? "Check Wallet" : "Swap"}
       </button>
@@ -449,7 +415,7 @@ function ApproveOrReviewButton({
       <>
         <button
           type="button"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+          className="bg-[#7962D9] hover:bg-[#8D72FD] text-white font-bold py-2 px-4 rounded w-full"
           onClick={async () => {
             await writeContract({
               abi: erc20Abi,
@@ -476,7 +442,7 @@ function ApproveOrReviewButton({
         // fetch data, when finished, show quote view
         onClick();
       }}
-      className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-25"
+      className="w-full bg-[#7962D9] hover:bg-[#8D72FD] text-white p-2 rounded disabled:opacity-25"
     >
       {disabled ? "Swapping..." : "Swap"}
     </button>
