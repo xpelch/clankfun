@@ -1007,35 +1007,19 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
           </span>
         </FButton>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[480px] flex flex-col">
         <DialogHeader>
-          <DialogTitle>find and trade the hottest coins on Base</DialogTitle>
-          <p className="text-muted-foreground">
-            clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. 
-          </p>
-          <p className="text-muted-foreground">
-            all Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.
-          </p>
-          <p className="text-muted-foreground">
-            clank.fun was built by <a href="https://warpcast.com/nt" target="_blank" rel="noreferrer" className="underline">@nt</a>
-          </p>
-          <p className="text-muted-foreground">
-            learn more about Clanker and Farcaster:
-          </p>
-          <div className="flex gap-4 justify-center md:justify-normal">
-            <a href="https://clanker.world" target="_blank" rel="noreferrer" className="underline">
-              Clanker
-            </a>
-            <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="underline">
-              Farcaster 
-            </a>
-          </div>
-          <div className="flex gap-4 justify-center md:justify-normal">
-            <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="underline">
-              Join the Telegram community
-            </a>
-          </div>
+          {/* <DialogTitle>find and trade the hottest coins on Base</DialogTitle> */}
+          <ClankfunLogo />
         </DialogHeader>
+        <div className="text-white text-[38px] font-semibold font-['Geist'] leading-[38px]">Find and trade the hottest coins on Base.</div>
+        <div className="text-white/80 text-[15px] font-normal font-['Geist'] leading-[18px]">Clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. All Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.</div>
+        <div className="text-white/80 text-[15px] font-normal font-['Geist'] leading-[18px]">Learn more about Clanker and Farcaster;</div>
+        <div className="flex flex-col">
+          <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Clanker</a>
+          <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="text-[#de4efb] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Farcaster</a>
+          <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Telegram community</a>
+        </div>
       </DialogContent>
     </Dialog>
   )
