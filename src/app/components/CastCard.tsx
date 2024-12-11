@@ -5,6 +5,7 @@ import { WithTooltip } from "../components"
 
 type Props = {
   cast: CastWithInteractions  
+  withText?: boolean
 }
 
 const castInfoStyle = {
@@ -34,7 +35,8 @@ function truncate(str: string, n: number) {
 }
 
 export function CastCard({
-  cast
+  cast,
+  withText
 }: Props) {
   return(
     <WithTooltip text="View on Warpcast">
@@ -91,7 +93,6 @@ export function CastCard({
           padding: '0px',
           gap: '8px',
           flex: 'none',
-          order: 1,
           alignSelf: 'stretch',
           flexGrow: 0,
         }}>
@@ -128,6 +129,11 @@ export function CastCard({
             </p>
           </div>
         </div>
+        {/* <div className="w-full">
+          {withText && (
+            cast.text  
+          )}
+        </div> */}
       </div>
     </div>
     </WithTooltip>
