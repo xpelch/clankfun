@@ -201,7 +201,7 @@ function SearchResults({ query }: { query: string }) {
           No results found for &quot;{query}&quot;
         </div>
       )}
-      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <motion.div className="w-full h-full clanker_grid">
         {clankers.map((item, i) => (
           <ClankItem 
             key={i} 
@@ -280,7 +280,7 @@ export function LatestFeed() {
       {clankers.length === 0 && (
         <Loader text="Loading new clankers" />
       )}
-      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <motion.div className="w-full h-full clanker_grid">
         {clankers.map((item, i) => (
           <ClankItem 
             key={i} 
@@ -351,7 +351,7 @@ export function TopFeed() {
       {clankers.length === 0 && (
         <Loader text="Loading top clankers"  />
       )}
-      <motion.div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <motion.div className="w-full h-full clanker_grid">
         {clankers.map((item, i) => (
           <ClankItem 
             key={i} 
@@ -459,7 +459,7 @@ export function HotFeed() {
       {dispClankers.length === 0 && (
         <Loader text="Loading hot clankers"  />
       )}
-      <motion.div className="w-full h-full grid lg:grid-cols-2 grid-cols-1 xl:grid-cols-3 gap-4">
+      <motion.div className="w-full h-full clanker_grid">
         {dispClankers[0] && <motion.div
           key={dispClankers[0].contract_address}
           animate={{ rotate: [-5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
@@ -566,7 +566,7 @@ function ClankItem({
 
   return (
     <motion.div
-      className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30' : 'border border-transparent'} overflow-hidden`}
+      className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30 z-10' : 'border border-transparent'} overflow-hidden`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}

@@ -65,8 +65,12 @@
   }
 }
 
+.clanker_grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2
+}
+
 .item_bg {
-  @apply flex flex-row items-start p-2 gap-4 bg-white/5 rounded-lg
+  @apply flex flex-row items-start p-2 gap-4 bg-[#1a1a1a] rounded-lg
 }
 
 .item_image {
