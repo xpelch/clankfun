@@ -92,14 +92,14 @@ export function LaunchView() {
     <div className="grid place-items-center">
       <div className="w-full max-w-[600px] flex flex-col items-center justify-center gap-6">
         <div className="w-full">
-          <span className="text-white text-[28px] font-medium font-['Geist'] leading-7">
+          <span className="text-white text-[28px] font-medium   leading-7">
             Launch a token with
             <br />
           </span>
-          <span className="text-[#b4a2ff] text-[28px] font-medium font-['Geist'] leading-7">
+          <span className="text-[#b4a2ff] text-[28px] font-medium   leading-7">
             Clanker
           </span>
-          <span className="text-white text-[28px] font-medium font-['Geist'] leading-7">
+          <span className="text-white text-[28px] font-medium   leading-7">
             {" "}
             via clank.fun
           </span>
@@ -109,26 +109,26 @@ export function LaunchView() {
         </div>
         <div className="w-full flex flex-col items-start justify-start gap-4">
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
-            <div className="w-full font-['Geist'] text-[15px] font-medium leading-[15px] text-white">
+            <div className="w-full   text-[15px] font-medium leading-[15px] text-white">
               Name
             </div>
             <FInput value={name} onChange={setName} placeholder="Enter token name" />
           </div>
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
-            <div className="w-full font-['Geist'] text-[15px] font-medium leading-[15px] text-white">
+            <div className="w-full   text-[15px] font-medium leading-[15px] text-white">
               Ticker
             </div>
             <FInput value={ticker} onChange={setTicker} placeholder="Enter ticker" />
           </div>
           <div className="h-[223px] flex flex-col items-start justify-start gap-2 w-full">
-            <div className="w-full font-['Geist'] text-[15px] font-medium leading-[15px] text-white">
+            <div className="w-full   text-[15px] font-medium leading-[15px] text-white">
               Token image
             </div>
             <FImageUpload onImage={setImage} />
           </div>
         </div>
         {address ? (<Button onClick={launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
-          <div className="font-['Geist'] text-[15px] font-medium leading-[15px] text-white">
+          <div className="  text-[15px] font-medium leading-[15px] text-white">
             {buttonName}
           </div>
         </Button>) : (

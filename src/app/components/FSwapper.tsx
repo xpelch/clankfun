@@ -16,7 +16,7 @@ type FFromProps = {
 export function FFromInput({ a, value, onChange, tokenName, tokenImage, onPercentageClick }: FFromProps) {
   return (
     <div className="self-stretch p-2.5 bg-white/10 rounded-[14px] flex flex-col justify-start items-start gap-3">
-      <div className="text-white text-[15px] font-medium font-['Geist'] leading-[15px]">From</div>
+      <div className="text-white text-[15px] font-medium   leading-[15px]">From</div>
       <div className="flex justify-start items-center gap-3">
         <input
           className="text-white text-3xl font-medium leading-[30px] bg-transparent outline-none w-full max-w-[1000px]"

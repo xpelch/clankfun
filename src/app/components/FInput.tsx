@@ -10,7 +10,7 @@ export function FSearchInput({ value, onChange }: Props) {
     <div className="max-w-80 h-[30px] px-2 bg-white/10 rounded-lg justify-start items-center gap-2 inline-flex">
       <SearchIcon />
       <input
-        className="text-white/50 text-[15px] font-medium font-['Geist'] leading-[15px] bg-transparent outline-none w-full"
+        className="text-white/50 text-[15px] font-medium   leading-[15px] bg-transparent outline-none w-full"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search..."
@@ -27,7 +27,7 @@ export function FInput({ value, onChange, placeholder }: {
   return (
     <div className="w-full h-[30px] px-2 bg-white/10 rounded-lg flex items-center">
       <input
-        className="text-white text-[15px] font-medium font-['Geist'] leading-[15px] bg-transparent outline-none w-full"
+        className="text-white text-[15px] font-medium   leading-[15px] bg-transparent outline-none w-full"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

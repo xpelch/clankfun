@@ -127,8 +127,8 @@ function ClankfunShill() {
       <div className="flex justify-start items-center gap-1.5 flex-grow">
         {data && <img src={data?.img_url ?? ""} alt="Clankfun Logo" className="w-8 h-8 rounded" />}
         <div className="flex justify-start items-center gap-2 flex-grow">
-          <div className="text-white flex-grow text-sm font-semibold font-['Geist'] uppercase leading-[14px]">$clankfun</div>
-          {data && <div className="text-white/70 text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(data.marketCap)}</div>}
+          <div className="text-white flex-grow text-sm font-semibold   uppercase leading-[14px]">$clankfun</div>
+          {data && <div className="text-white/70 text-sm font-medium   leading-[14px]">${formatPrice(data.marketCap)}</div>}
         </div>
       </div>
       <div className="flex justify-start items-center gap-1">
@@ -853,18 +853,18 @@ function BuyModal({
               </div>}
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex overflow-hidden">
                 <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex overflow-hidden">
-                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium font-['Geist'] leading-[13px] truncate">${clanker.symbol}</div>
-                  <div className="self-stretch text-white text-[28px] font-medium font-['Geist'] leading-7 truncate">{clanker.name}</div>
+                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium   leading-[13px] truncate">${clanker.symbol}</div>
+                  <div className="self-stretch text-white text-[28px] font-medium   leading-7 truncate">{clanker.name}</div>
                 </div>
                 <div className="self-stretch justify-start items-center gap-4 inline-flex">
                   <div className="justify-start items-center gap-1 flex">
                     <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
                     </svg>
-                    <div className="text-[#4ee6fb] text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(clanker.marketCap)}</div>
+                    <div className="text-[#4ee6fb] text-sm font-medium   leading-[14px]">${formatPrice(clanker.marketCap)}</div>
                   </div>
                   {clanker.cast && <div className="justify-start items-center gap-[3px] flex">
-                    <div className="text-[#6affbc] text-sm font-medium font-['Geist'] uppercase leading-[14px] flex gap-1">
+                    <div className="text-[#6affbc] text-sm font-medium   uppercase leading-[14px] flex gap-1">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
                       </svg>
@@ -917,18 +917,18 @@ export function TradeApp({
               </div>}
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex overflow-hidden">
                 <div className="self-stretch h-[49px] flex-col justify-start items-start gap-2 flex overflow-hidden">
-                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium font-['Geist'] leading-[13px] truncate">${clanker.symbol}</div>
-                  <div className="self-stretch text-white text-[28px] font-medium font-['Geist'] leading-7 truncate">{clanker.name}</div>
+                  <div className="self-stretch text-[#b3a1ff] text-[13px] font-medium   leading-[13px] truncate">${clanker.symbol}</div>
+                  <div className="self-stretch text-white text-[28px] font-medium   leading-7 truncate">{clanker.name}</div>
                 </div>
                 <div className="self-stretch justify-start items-center gap-4 inline-flex">
                   <div className="justify-start items-center gap-1 flex">
                     <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
                     </svg>
-                    <div className="text-[#4ee6fb] text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(clanker.marketCap)}</div>
+                    <div className="text-[#4ee6fb] text-sm font-medium   leading-[14px]">${formatPrice(clanker.marketCap)}</div>
                   </div>
                   {clanker.cast && <div className="justify-start items-center gap-[3px] flex">
-                    <div className="text-[#6affbc] text-sm font-medium font-['Geist'] uppercase leading-[14px] flex gap-1">
+                    <div className="text-[#6affbc] text-sm font-medium   uppercase leading-[14px] flex gap-1">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3.38852 0L0 6.93116H3.03896L1.97694 12L12 2.88798H8.12353L9.81779 0H3.38852Z" fill="#6BFFBC"/>
                       </svg>
@@ -972,13 +972,13 @@ function Explainer({ refreshing }: { refreshing: boolean }) {
           {/* <DialogTitle>find and trade the hottest coins on Base</DialogTitle> */}
           <ClankfunLogo />
         </DialogHeader>
-        <div className="text-white text-[38px] font-semibold font-['Geist'] leading-[38px]">Find and trade the hottest coins on Base.</div>
-        <div className="text-white/80 text-[15px] font-normal font-['Geist'] leading-[18px]">Clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. All Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.</div>
-        <div className="text-white/80 text-[15px] font-normal font-['Geist'] leading-[18px]">Learn more about Clanker and Farcaster;</div>
+        <div className="text-white text-[38px] font-semibold   leading-[38px]">Find and trade the hottest coins on Base.</div>
+        <div className="text-white/80 text-[15px] font-normal   leading-[18px]">Clank.fun lets you discover and trade coins minted with the Clanker protocol on Base. All Clanker tokens are fair-launched by users on Farcaster, and traded via a UniswapV3 pair on Base.</div>
+        <div className="text-white/80 text-[15px] font-normal   leading-[18px]">Learn more about Clanker and Farcaster;</div>
         <div className="flex flex-col">
-          <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Clanker</a>
-          <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="text-[#de4efb] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Farcaster</a>
-          <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal font-['Geist'] underline leading-[18px]">Telegram community</a>
+          <a href="https://clanker.world" target="_blank" rel="noreferrer" className="text-[#b3a1ff] text-[15px] font-normal   underline leading-[18px]">Clanker</a>
+          <a href="https://warpcast.com" target="_blank" rel="noreferrer" className="text-[#de4efb] text-[15px] font-normal   underline leading-[18px]">Farcaster</a>
+          <a href="https://t.me/clankfunn" target="_blank" rel="noreferrer" className="text-[#4ee6fb] text-[15px] font-normal   underline leading-[18px]">Telegram community</a>
         </div>
       </DialogContent>
     </Dialog>
