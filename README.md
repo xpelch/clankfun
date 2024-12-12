@@ -15,7 +15,7 @@ easily browse and trade clanker memecoins on Base
 * New query hits the clanker API directly for fresh data
 * trading implemented using 0x protocol 
 
-## set up for development
+## set up for development:
 
 * copy envs in `.env.example` to `.env`
 * set up the required services (I run everything on a coolify instance)
