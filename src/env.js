@@ -17,6 +17,7 @@ export const env = createEnv({
     CRON_SECRET: z.string(),
     REDIS_URL: z.string(),
     CLANKER_API_KEY: z.string(),
+    IMGUR_CLIENT_SECRET: z.string(),
   },
 
   /**
@@ -26,6 +27,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_ALCHEMY_BASE_ENDPOINT: z.string(),
+    NEXT_PUBLIC_IMGUR_CLIENT_ID: z.string(),
   },
 
   /**
@@ -44,6 +46,8 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     REDIS_URL: process.env.REDIS_URL,
     CLANKER_API_KEY: process.env.CLANKER_API_KEY,
+    IMGUR_CLIENT_SECRET: process.env.IMGUR_CLIENT_SECRET,
+    NEXT_PUBLIC_IMGUR_CLIENT_ID: process.env.NEXT_PUBLIC_IMGUR_CLIENT_ID,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

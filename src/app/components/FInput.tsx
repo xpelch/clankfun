@@ -19,6 +19,23 @@ export function FSearchInput({ value, onChange }: Props) {
   )
 }
 
+export function FInput({ value, onChange, placeholder }: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="w-full h-[30px] px-2 bg-white/10 rounded-lg flex items-center">
+      <input
+        className="text-white text-[15px] font-medium font-['Geist'] leading-[15px] bg-transparent outline-none w-full"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+      />
+    </div>
+  )
+}
+
 const SearchIcon = () => {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -18,7 +18,7 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { io } from 'socket.io-client';
 import moment from "moment"
 
-type NavPage = "latest" | "hot" | "top" | "search"
+type NavPage = "latest" | "hot" | "top" | "search" | "launch"
 
 function shareUrl() {
   const url = new URL("https://warpcast.com/~/compose")
@@ -73,6 +73,8 @@ export function App({
     feed = <LatestFeed/>
   } else if (view === "top") {
     feed = <TopFeed/>
+  } else if (view === "launch"){
+    feed =  <LaunchView />
   } else {
     feed = <HotFeed/>
   }
@@ -568,10 +570,10 @@ export function ClankItem({
       </motion.div>
       <div className="item_image flex items-center justify-center relative">
         {c.img_url ? <img src={c.img_url} alt="" className="w-full h-full object-contain" /> : 
-        <div className="bg-purple-500 w-full h-full grid place-items-center">
+        <div className="bg-purple-500 w-full h-full grid place-items-center text-[8px] md:text-base">
           ${c.symbol}
         </div>}
-        {balance && (c.priceUsd * balance / 10**c.decimals) > 0.01 && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
+        {(balance && (c.priceUsd * balance / 10**c.decimals) > 0.01) ? <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} /> : null}
       </div>
       <div className="item_content flex-grow">
         <div className="item_content_info font-bold w-full">
@@ -631,121 +633,6 @@ export function ClankItem({
         ) : <div className="item_content_user flex-grow"/>}
       </div>
     </motion.div>
-    // <div
-    //   className={`cursor-pointer w-full flex flex-row p-4 bg-slate-950 rounded-lg ${isHovered ? 'border border-white/30' : 'border border-white/10'}`}
-    //   onMouseEnter={handleMouseEnter}
-    //   onMouseLeave={handleMouseLeave}
-    //   onClick={onSelect}
-    // >
-    //   <div className="mb-4 md:mb-0 w-36 h-36 flex-none flex items-center justify-center overflow-hidden rounded">
-    //     <WithTooltip text={`Trade ${c.name}`}>
-    //     <div className="w-full h-full" onClick={onSelect}>
-    //       {c.img_url ? (
-    //         <motion.div
-    //           className="relative w-full h-full"
-    //           whileHover={{
-    //             rotate: 5,
-    //             scale: 0.9,
-    //             rotateX: 10,
-    //             rotateY: 10,
-    //           }}
-    //         >
-    //           <img
-    //             src={c.img_url ?? ""}
-    //             alt=""
-    //             className="cursor-pointer w-full h-full object-contain"
-    //           />
-    //           {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
-    //         </motion.div>
-    //       ) : (
-    //         <motion.div
-    //           className="relative w-full h-full bg-purple-900 grid place-items-center text-4xl text-white/50"
-    //           whileHover={{
-    //             rotate: 5,
-    //             scale: 0.9,
-    //             rotateX: 10,
-    //             rotateY: 10,
-    //           }}
-    //         >
-    //           <ChartNoAxesColumnIncreasing className="w-1/3 h-1/3 text-white" />
-    //           {balance && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
-    //         </motion.div>
-    //       )}
-    //     </div>
-    //     </WithTooltip>
-    //   </div> 
-    //   <div className="flex-grow pl-2">
-    //     <div className="pl-2">
-    //       <div className="flex w-full items-start gap-2">
-    //         <WithTooltip text={`Trade ${c.name}`}>
-    //           <p className="font-bold text-lg flex-grow cursor-pointer text-ellipsis" onClick={onSelect}>
-    //             {c.name}
-    //           </p>
-    //         </WithTooltip>
-    //         <WithTooltip text="Launched">
-    //           <motion.div
-    //             animate={{
-    //               backgroundColor: moment(c.created_at).isAfter(moment().subtract(10, 'minutes')) ? ['#9f7aea', '#c084fc', '#9f7aea'] : [],
-    //             }}
-    //             transition={{
-    //               repeat: Infinity,
-    //               duration: 1,
-    //               ease: 'easeInOut',
-    //             }}
-    //             className="flex-none rounded-md bg-slate-800 px-2 py-1 text-xs flex gap-2 items-center"
-    //           >
-    //             <Clock size={16} />
-    //             {moment(c.created_at).fromNow(true)}
-    //           </motion.div>
-    //         </WithTooltip>
-    //       </div>
-    //       <p className="font-bold text-xs flex-grow cursor-pointer" onClick={onSelect}>
-    //         (${c.symbol})
-    //       </p>
-    //       <div className="flex gap-4 mt-2 text-lg">
-    //         <WithTooltip text="Market Cap">
-    //           <div className="flex items-center gap-1">
-    //             <DollarSign size={16} />
-    //             <span>{c.marketCap === -1 ? "N/A" : `${formatPrice(c.marketCap)}`}</span>
-    //           </div>
-    //         </WithTooltip>
-    //           {c.cast && (
-    //             <WithTooltip text="Total cast engagement">
-    //             <motion.div
-    //               animate={{
-    //                 scale: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [1, 1.2, 1] : [],
-    //                 color: c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count > 50 ? [
-    //                   "#ff0000",
-    //                   "#ffa500",
-    //                   "#ffff00",
-    //                   "#008000",
-    //                   "#0000ff",
-    //                   "#4b0082",
-    //                   "#ee82ee",
-    //                   "#ff0000",
-    //                 ] : ["#ffffff"],
-    //               }}
-    //               transition={{
-    //                 repeat: Infinity,
-    //                 duration: 1,
-    //                 ease: "easeInOut",
-    //               }}
-    //               className="flex items-center gap-1"
-    //             >
-    //               <Zap size={16} />
-    //               <span>{c.cast.reactions.likes_count + c.cast.reactions.recasts_count + c.cast.replies.count}</span>
-    //             </motion.div>
-    //             </WithTooltip>
-    //           )}
-    //       </div>
-    //     </div>
-    //     {c.cast && (
-    //       <WithTooltip text="View on Warpcast">
-    //         <AnonCast cast={c.cast} />
-    //       </WithTooltip>
-    //     )}
-    //   </div>
-    // </div>
   )
 }
 
@@ -758,7 +645,7 @@ function BalanceView({ balance, decimals, priceUsd }: { balance: number, decimal
   )
 }
 
-function Nav({ 
+export function Nav({ 
   refreshing, 
   view, 
   setView,
@@ -767,7 +654,7 @@ function Nav({
   refreshing: boolean, 
   view: NavPage, 
   setView: (view: NavPage) => void 
-  setSearchQuery: (query: string) => void
+  setSearchQuery?: (query: string) => void
 }) {
   return (
     <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
@@ -812,14 +699,14 @@ function Nav({
           </Link>
         </div>
         <div className="flex-grow flex justify-end">
-          <ClankerSearch 
+          {setSearchQuery && <ClankerSearch 
             selected={view === "search"}
             onQueryUpdate={(v) => {
               setSearchQuery(v)
               if (v.length > 0) {
                 setView("search")
               }
-            }} />
+            }} />}
         </div>
       </div>
     </nav>
@@ -924,6 +811,7 @@ import { FConnectButton } from "./components/FConnectButton";
 import { FSearchInput } from "./components/FInput";
 import { PriceInput } from "~/components/ui/priceinput";
 import Link from "next/link";
+import { LaunchView } from "./components/LaunchView";
 
 function BuyModal({ 
   clanker, 
