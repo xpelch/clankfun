@@ -9,11 +9,14 @@ import { Nav, TradeApp } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
 import { serverFetchCA } from "~/app/server";
 
+type Params = Promise<{ca: string}>;
+
 export default async function Page({ 
-  params: { ca }, 
+  params
 }: { 
-  params: { ca: string }, 
+  params: Params
 }) {
+  const { ca } = await params
   await getOrScrapeByCa(ca)
   const data = await serverFetchCA(ca)
   if (!data) {
