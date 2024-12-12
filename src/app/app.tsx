@@ -9,12 +9,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { type ClankerWithData, serverFetchBalance, serverFetchCA, serverFetchClankers, serverFetchHotClankers, serverFetchNativeCoin, serverFetchTopClankers, serverSearchClankers } from "./server";
 import { type EmbedCast, type EmbedUrl, type CastWithInteractions } from "@neynar/nodejs-sdk/build/neynar-api/v2";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { motion } from 'framer-motion';
-import { ArrowRight, CandlestickChart, ChartAreaIcon, ChartBar, ChartCandlestick, ChartNoAxesColumnIncreasing, Clipboard, Clock, DollarSign, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Rocket, Search, Share, Users, Wallet, Zap } from "lucide-react";
+import { ChartAreaIcon, ChartNoAxesColumnIncreasing, LucideHeart, LucideMessageCircle, LucideRotateCcw, MessageCircle, Reply, Share, Users } from "lucide-react";
 import { WithTooltip } from "./components";
 import { useToast } from "~/hooks/use-toast";
-import { ConnectKitButton } from "connectkit";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { io } from 'socket.io-client';
 import moment from "moment"
@@ -57,9 +56,14 @@ function cleanTicker(text: string) {
   return text
 }
 
+export type AppProps = {
+  initialView?: NavPage
+}
 
-export function App() {
-  const [view, setView] = useState<NavPage>("hot");
+export function App({
+  initialView = "hot"
+}: AppProps) {
+  const [view, setView] = useState<NavPage>(initialView);
   const [searchQuery, setSearchQuery] = useState<string>("")
 
   let feed
@@ -582,7 +586,7 @@ export function ClankItem({
           <div className="item_content_stats">
             <div className="item_stat text-[#4EE7FB]">
               <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fillRule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+                <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
               </svg>
               <div className="item_stat_text">
                 {formatPrice(c.marketCap)}
@@ -776,33 +780,36 @@ function Nav({
       </div>
       <div className="w-full flex gap-2">
         <div className="w-full max-w-[400px] flex justify-start gap-2">
-          <FButton
-            onClick={() => setView("hot")}
-            selected={view === "hot"}
-          >
-            <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path fillRule="evenodd" clip-rule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
-            </svg>
-            Hot
-          </FButton>
-          <FButton
-            onClick={() => setView("top")}
-            selected={view === "top"}
-          >
-            <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5.37858 0C4.19768 0 3.01801 0.473334 2.13755 1.41249C1.25337 2.35562 0.711914 3.72238 0.711914 5.44444C0.711914 8.04593 2.5574 10.1907 4.27559 11.6101C5.15564 12.3371 6.05282 12.9161 6.77213 13.3158C7.13163 13.5155 7.45427 13.6746 7.71505 13.7863C7.84467 13.8419 7.96776 13.8895 8.07782 13.9248C8.16175 13.9516 8.32177 14 8.48969 14C8.65762 14 8.81763 13.9516 8.90156 13.9248C9.01163 13.8895 9.13471 13.8419 9.26433 13.7863C9.52512 13.6746 9.84776 13.5155 10.2073 13.3158C10.9266 12.9161 11.8237 12.3371 12.7038 11.6101C14.422 10.1907 16.2675 8.04593 16.2675 5.44444C16.2675 3.72238 15.726 2.35562 14.8418 1.41249C13.9614 0.473334 12.7817 0 11.6008 0C10.4695 0 9.56421 0.339812 8.94364 0.678303C8.77084 0.772558 8.61918 0.867188 8.48969 0.955253C8.3602 0.867188 8.20854 0.772558 8.03574 0.678303C7.41518 0.339812 6.50985 0 5.37858 0Z" fill="white"/>
-            </svg>
-            Top
-          </FButton>
-          <FButton
-            onClick={() => setView("latest")}
-            selected={view === "latest"}
-          >
-            <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0.267578 7C3.76758 5.6875 5.95508 3.5 7.26758 0C8.58008 3.5 10.7676 5.6875 14.2676 7C10.7676 8.3125 8.58008 10.5 7.26758 14C5.95508 10.5 3.76758 8.3125 0.267578 7Z" fill="white"/>
-            </svg>
-            New
-          </FButton>
+          <Link href="/">
+            <FButton
+              selected={view === "hot"}
+            >
+              <svg width="12" height="14" viewBox="0 0 12 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" clipRule="evenodd" d="M9.10404 2.348C8.46709 1.69763 7.83232 1.19243 7.35708 0.849635C6.91481 0.530615 6.46744 0.269066 5.99657 0L3.69571 3.28695L2.75578 2.34703L2.26863 2.83418C0.76379 4.33902 0 6.42514 0 8.00283C0 11.2974 2.60446 14 5.85604 14C9.10762 14 11.7121 11.2974 11.7121 8.00283C11.7121 5.57276 10.3643 3.63485 9.10404 2.348ZM5.85604 12.6221C6.85484 12.6221 7.66452 11.6979 7.66452 10.5578C7.66452 8.87117 5.85604 7.79948 5.85604 7.79948C5.85604 7.79948 4.04756 8.87117 4.04756 10.5578C4.04756 11.6979 4.85724 12.6221 5.85604 12.6221Z" fill="white"/>
+              </svg>
+              Hot
+            </FButton>
+          </Link>
+          <Link href="/top">
+            <FButton
+              selected={view === "top"}
+            >
+              <svg width="17" height="14" viewBox="0 0 17 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.37858 0C4.19768 0 3.01801 0.473334 2.13755 1.41249C1.25337 2.35562 0.711914 3.72238 0.711914 5.44444C0.711914 8.04593 2.5574 10.1907 4.27559 11.6101C5.15564 12.3371 6.05282 12.9161 6.77213 13.3158C7.13163 13.5155 7.45427 13.6746 7.71505 13.7863C7.84467 13.8419 7.96776 13.8895 8.07782 13.9248C8.16175 13.9516 8.32177 14 8.48969 14C8.65762 14 8.81763 13.9516 8.90156 13.9248C9.01163 13.8895 9.13471 13.8419 9.26433 13.7863C9.52512 13.6746 9.84776 13.5155 10.2073 13.3158C10.9266 12.9161 11.8237 12.3371 12.7038 11.6101C14.422 10.1907 16.2675 8.04593 16.2675 5.44444C16.2675 3.72238 15.726 2.35562 14.8418 1.41249C13.9614 0.473334 12.7817 0 11.6008 0C10.4695 0 9.56421 0.339812 8.94364 0.678303C8.77084 0.772558 8.61918 0.867188 8.48969 0.955253C8.3602 0.867188 8.20854 0.772558 8.03574 0.678303C7.41518 0.339812 6.50985 0 5.37858 0Z" fill="white"/>
+              </svg>
+              Top
+            </FButton>
+          </Link>
+          <Link href="/new">
+            <FButton
+              selected={view === "latest"}
+            >
+              <svg width="15" height="14" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0.267578 7C3.76758 5.6875 5.95508 3.5 7.26758 0C8.58008 3.5 10.7676 5.6875 14.2676 7C10.7676 8.3125 8.58008 10.5 7.26758 14C5.95508 10.5 3.76758 8.3125 0.267578 7Z" fill="white"/>
+              </svg>
+              New
+            </FButton>
+          </Link>
         </div>
         <div className="flex-grow flex justify-end">
           <ClankerSearch 
@@ -916,6 +923,7 @@ import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
 import { FSearchInput } from "./components/FInput";
 import { PriceInput } from "~/components/ui/priceinput";
+import Link from "next/link";
 
 function BuyModal({ 
   clanker, 
@@ -962,7 +970,7 @@ function BuyModal({
                 <div className="self-stretch justify-start items-center gap-4 inline-flex">
                   <div className="justify-start items-center gap-1 flex">
                     <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path fillRule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+                      <path fillRule="evenodd" clipRule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
                     </svg>
                     <div className="text-[#4ee6fb] text-sm font-medium font-['Geist'] leading-[14px]">${formatPrice(clanker.marketCap)}</div>
                   </div>
