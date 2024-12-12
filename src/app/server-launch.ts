@@ -1,6 +1,7 @@
 "use server"
 
 import axios from 'axios';
+import { redirect } from 'next/navigation';
 
 import { verifyMessage } from 'viem';
 import { env } from '~/env';
@@ -45,6 +46,10 @@ export async function serverLaunchToken({
 
   console.log('Token deployment response:')
   console.log(JSON.stringify(response.data, null, 2))
+  if (!response.data.contract_address) {
+    throw new Error("Failed to deploy token")
+  }
+  return redirect(`/t/${response.data.contract_address}`)
 }
 
 async function verifySignature(

@@ -552,8 +552,9 @@ export function ClankItem({
   }
 
   return (
-    <motion.div
+    <motion.a
       className={`item_bg relative cursor-pointer ${isHovered ? 'border border-white/30 z-10' : 'border border-transparent'} overflow-hidden`}
+      href={`/t/${c.contract_address}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onSelect}
@@ -632,7 +633,7 @@ export function ClankItem({
             </div>
         ) : <div className="item_content_user flex-grow"/>}
       </div>
-    </motion.div>
+    </motion.a>
   )
 }
 
