@@ -1,6 +1,8 @@
 import axios from "axios";
 import { z } from "zod";
 import { db } from "./db";
+import { env } from "~/env";
+import { getAddress } from 'viem'
 
 const APIClankerSchema = z.object({
   id: z.number(),
@@ -99,25 +101,47 @@ export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40
   }
 }
 
-// Internal function used to test that every output from the API is valid under the schema
-// async function debugTestSchema() {
-//   let page = 1
-//   while(true) {
-//     const data = await clankerListAPI('asc', page)
-//     console.log("Page", page, data.data.length)
-//     page++
-//     if (!data.hasMore) break
-//   }
-// }
-
 export async function clankerListAPI(sort: 'desc' | 'asc', page = 1): Promise<APIPage> {
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=${sort}&page=${page}&type=all`);
   const data = res.data;
-  console.log(JSON.stringify(data))
   const parsed = APIPageSchema.safeParse(data);
   if (!parsed.success) {
     console.error("Failed to parse", JSON.stringify(parsed.error.errors, null, 2));
     throw new Error(`Invalid clanker data: ${parsed.error.errors.join(", ")}`);
   }
   return parsed.data
+}
+
+export async function clankerRewardsUSDAPI(poolAddress: string): Promise<number | undefined> {
+  try {
+    const res = await axios.get(`https://www.clanker.world/api/tokens/estimate-rewards-by-pool-address?poolAddress=${getAddress(poolAddress)}`, {
+      headers: {
+        'x-api-key': env.CLANKER_API_KEY,
+      },
+    });
+    const data = res.data;
+    return data.userRewards;
+  } catch(e: any) {
+    console.error("Failed to fetch clanker rewards", e.message);
+    return undefined
+  }
+}
+
+export async function clankerRewardsUSDAPIBatched(poolAddresses: string[]): Promise<Record<string, number>> {
+  try {
+    console.log("Fetching clanker rewards for ", poolAddresses.length, "pools");
+    const rewardsMap: Record<string, number> = {};
+    const requests = poolAddresses.map(async (poolAddress) => {
+      const rewards = await clankerRewardsUSDAPI(poolAddress);
+      if (rewards !== undefined) {
+        rewardsMap[poolAddress] = rewards;
+      }
+    });
+    await Promise.all(requests);
+    console.log("Fetched rewards for", Object.keys(rewardsMap).length, "pools");
+    return rewardsMap;
+  } catch (e: any) {
+    console.error("Failed to fetch clanker rewards", e.message);
+    return {};
+  }
 }

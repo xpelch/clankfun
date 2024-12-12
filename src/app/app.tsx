@@ -533,16 +533,7 @@ export function ClankItem({
   onHover?: (isHovered: boolean) => void
   withoutCast?: boolean
 }) {
-  const { toast } = useToast()
   const [isHovered, setIsHovered] = useState(false)
-
-  function copyAddressToClipboard() {
-    void navigator.clipboard.writeText(c.contract_address);
-    toast({
-      title: "Copied!",
-      description: "Copied the CA address for " + c.name,
-    })
-  }
 
   const handleMouseEnter = () => {
     setIsHovered(true)
@@ -597,6 +588,18 @@ export function ClankItem({
                 {formatPrice(c.marketCap)}
               </div>
             </div>
+            {c.rewardsUSD && <WithTooltip text="Creator rewards">
+              <motion.div
+                className="item_stat text-[#4EE7FB]"
+              >
+                <svg width="13" height="14" viewBox="0 0 13 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" clip-rule="evenodd" d="M0 7C0 3.41015 2.91015 0.5 6.5 0.5C10.0899 0.5 13 3.41015 13 7C13 10.5899 10.0899 13.5 6.5 13.5C2.91015 13.5 0 10.5899 0 7ZM7.15 2.775V3.83038C7.67263 3.96262 8.13377 4.25347 8.43433 4.66913L8.8152 5.19586L7.76175 5.95759L7.38088 5.43087C7.23966 5.23557 6.92472 5.05 6.5 5.05H6.31944C5.73784 5.05 5.525 5.4042 5.525 5.55556V5.60517C5.525 5.73339 5.62193 5.9487 5.94915 6.07959L7.53365 6.71339C8.22716 6.99079 8.775 7.61009 8.775 8.39483C8.775 9.35231 8.00995 9.99936 7.15 10.1909V11.225H5.85V10.1696C5.32737 10.0374 4.86623 9.74653 4.56567 9.33087L4.1848 8.80414L5.23825 8.04241L5.61912 8.56913C5.76034 8.76443 6.07528 8.95 6.5 8.95H6.61854C7.2344 8.95 7.475 8.57359 7.475 8.39483C7.475 8.26661 7.37807 8.0513 7.05085 7.92041L5.46634 7.28661C4.77284 7.00921 4.225 6.38991 4.225 5.60517V5.55556C4.225 4.60395 4.99809 3.97038 5.85 3.79765V2.775H7.15Z" fill="#4EE7FB"/>
+                </svg>
+                <div className="item_stat_text">
+                  {formatPrice(c.rewardsUSD)}
+                </div>
+              </motion.div>
+            </WithTooltip>}
             {c.cast && 
             <WithTooltip text="Engagement: # likes, recasts and replies">
               <motion.div

@@ -16,6 +16,7 @@ import { getQuote, getSwapPrice } from '~/lib/0x';
 import { getHotClankersCA, getTopClankersCA } from '~/lib/dune';
 import { db } from '~/lib/db';
 import Redis from 'ioredis';
+import { clankerRewardsUSDAPI, clankerRewardsUSDAPIBatched } from '~/lib/clanker';
 
 const redis = new Redis(env.REDIS_URL);
 
@@ -40,6 +41,7 @@ export type ClankerWithData = Clanker & {
   marketCap: number, 
   decimals: number,
   priceUsd: number,
+  rewardsUSD?: number,
   cast: CastWithInteractions | null 
 }
 
@@ -93,8 +95,11 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
   const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
   const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
 
-  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
-  const casts = await fetchCastsNeynar(castHashes)
+  const [mcaps, casts, rewards] = await Promise.all([
+    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
+    fetchCastsNeynar(castHashes),
+    clankerRewardsUSDAPIBatched(poolAddresses)
+  ])
 
   return dbClankers.map((clanker, i) => {
     return {
@@ -111,6 +116,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
       type: clanker.type ?? "unknown",
       marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
@@ -146,8 +152,11 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
   const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
   const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
 
-  const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
-  const casts = await fetchCastsNeynar(castHashes)
+  const [mcaps, casts, rewards] = await Promise.all([
+    fetchMultiPoolMarketCaps(poolAddresses, contractAddresses),
+    fetchCastsNeynar(castHashes),
+    clankerRewardsUSDAPIBatched(poolAddresses)
+  ])
 
   const out = dbClankers.map((clanker, i) => {
     return {
@@ -164,6 +173,7 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
       type: clanker.type ?? "unknown",
       marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
@@ -194,6 +204,7 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
     throw new Error("CA not found in database")
   }
   const data = await fetchMultiPoolMarketCaps([clanker.pool_address], [clanker.contract_address])
+  const rewards = await clankerRewardsUSDAPI(clanker.pool_address)
   let cast = null
   try {
     if (clanker.cast_hash) {
@@ -220,6 +231,7 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
     marketCap: data[clanker.pool_address]?.marketCap ?? -1,
     priceUsd: data[clanker.pool_address]?.usdPrice ?? -1,
     decimals: data[clanker.pool_address]?.decimals ?? -1,
+    rewardsUSD: rewards ?? -1,
     cast: cast ?? null
   } 
   await redis.set(cacheKey, JSON.stringify(res), "EX", CACHE_EXPIRATION_SECONDS);
@@ -254,6 +266,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   const poolAddresses = dbClankers.map(d => d.pool_address).filter(h => h !== null)
   const contractAddresses = dbClankers.map(d => d.contract_address).filter(h => h !== null)
   const castHashes = dbClankers.map(d => d.cast_hash).filter(h => h !== null)
+  const rewards = await clankerRewardsUSDAPIBatched(poolAddresses)
 
   const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
   const casts = await fetchCastsNeynar(castHashes)
@@ -274,6 +287,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
       marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   }).sort((a, b) => b.marketCap - a.marketCap)
@@ -310,12 +324,14 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
 
   const mcaps = await fetchMultiPoolMarketCaps(parsedData.map(d => d.pool_address), parsedData.map(d => d.contract_address))
   const casts = await fetchCastsNeynar(parsedData.map(d => d.cast_hash).filter(h => h !== null))
+  const rewards = await clankerRewardsUSDAPIBatched(parsedData.map(d => d.pool_address))
   const clankersWithMarketCap = parsedData.map((clanker, i) => {
     return { 
       ...clanker, 
       marketCap: mcaps[clanker.pool_address]?.marketCap ?? -1,
       priceUsd: mcaps[clanker.pool_address]?.usdPrice ?? -1,
       decimals: mcaps[clanker.pool_address]?.decimals ?? -1,
+      rewardsUSD: rewards[clanker.pool_address] ?? -1,
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
