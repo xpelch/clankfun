@@ -319,7 +319,7 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
-  return clankersWithMarketCap.filter((c) => (c.cast?.author.follower_count ?? 0) > 99)
+  return clankersWithMarketCap
 }
 
 export async function fetchParentCast(hash: string) {
