@@ -777,7 +777,7 @@ function Nav({
       </div>
       <div className="w-full flex gap-2">
         <div className="w-full max-w-[400px] flex justify-start gap-2">
-          <a href="/">
+          <Link href="/">
             <FButton
               selected={view === "hot"}
             >
@@ -786,8 +786,8 @@ function Nav({
               </svg>
               Hot
             </FButton>
-          </a>
-          <a href="/top">
+          </Link>
+          <Link href="/top">
             <FButton
               selected={view === "top"}
             >
@@ -796,8 +796,8 @@ function Nav({
               </svg>
               Top
             </FButton>
-          </a>
-          <a href="/new">
+          </Link>
+          <Link href="/new">
             <FButton
               selected={view === "latest"}
             >
@@ -806,7 +806,7 @@ function Nav({
               </svg>
               New
             </FButton>
-          </a>
+          </Link>
         </div>
         <div className="flex-grow flex justify-end">
           <ClankerSearch 
@@ -920,6 +920,7 @@ import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
 import { FSearchInput } from "./components/FInput";
 import { PriceInput } from "~/components/ui/priceinput";
+import Link from "next/link";
 
 function BuyModal({ 
   clanker, 
