@@ -660,9 +660,9 @@ export function Nav({
   return (
     <nav className="w-full flex flex-col sticky top-0 bg-[#090F11] pb-2 z-[9] p-2 lg:pt-6 lg:px-6">
       <div className="flex items-center gap-2 mb-2 md:mb-4 text-white">
-        <div className="flex-grow flex">
+        <a className="flex-grow flex" href="/">
           <ClankfunLogo />
-        </div>
+        </a>
         <Explainer refreshing={refreshing} />
         <FConnectButton />
       </div>
