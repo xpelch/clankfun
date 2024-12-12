@@ -1,19 +1,74 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ClankItem, Nav } from "../app";
 import { ClankerWithData } from "../server";
 import { FInput } from "./FInput";
 import { FImageUpload } from "./FImageUpload";
-import { useAccount } from "wagmi";
-import { FConnectButton, FConnectButtonLarge } from "./FConnectButton";
+import { useAccount, useSignMessage } from "wagmi";
+import { FConnectButtonLarge } from "./FConnectButton";
 import { Button } from "~/components/ui/button";
+import { serverLaunchToken } from "../server-launch";
+import { useToast } from "~/hooks/use-toast";
 
 export function LaunchView() {
+  const { toast } = useToast()
+
+  const [nonce, setNonce] = useState<string|null>(null);
+  const [launching, setLaunching] = useState<boolean>(false);
   const [name, setName] = useState("");
   const [ticker, setTicker] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const { address } = useAccount()
+  const { isPending: signPending, signMessageAsync } = useSignMessage()
 
-  const canLaunch = name.length > 0 && ticker.length > 0 && address
+  useEffect(() => {
+    const randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    setNonce(randomString);
+  }, []);
+
+  const canLaunch = nonce && name.length > 0 && ticker.length > 0 && address
+  let buttonName = "Launch"
+  if (signPending) {
+    buttonName = "Sign in wallet"
+  }
+
+
+  async function launchToken() {
+    setLaunching(true)
+    try {
+      const canLaunch = nonce && name.length > 0 && ticker.length > 0 && address
+      if (!canLaunch) return;
+      const signature = await signMessageAsync({ message: nonce })
+      console.log(signature)
+
+      console.log("Name:", name)
+      console.log("Ticker:", ticker)
+      console.log("Image:", image)
+      console.log("Address:", address)
+      console.log("Nonce:", nonce)
+      console.log("Signature:", signature)
+
+      const res = await serverLaunchToken({
+        name,
+        ticker,
+        image,
+        address,
+        nonce: nonce!,
+        signature
+      })
+
+      toast({
+        title: "Token launched!",
+      })
+    } catch(e: any) {
+      console.error("Failed to launch token", e.message)
+      toast({
+        title: "Error launching token",
+        description: e.message
+      })
+    } finally {
+      setLaunching(false)
+    }
+  }
 
   const previewClanker = {
     name: name.length > 0 ? name : "[Your Token]",
@@ -72,9 +127,9 @@ export function LaunchView() {
             <FImageUpload onImage={setImage} />
           </div>
         </div>
-        {address ? (<Button className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch}>
+        {address ? (<Button onClick={launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
           <div className="font-['Geist'] text-[15px] font-medium leading-[15px] text-white">
-            Launch
+            {buttonName}
           </div>
         </Button>) : (
           <FConnectButtonLarge />
