@@ -8,6 +8,7 @@ import { FConnectButtonLarge } from "./FConnectButton";
 import { Button } from "~/components/ui/button";
 import { serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export function LaunchView() {
   const { toast } = useToast()
@@ -31,6 +32,7 @@ export function LaunchView() {
     buttonName = "Sign in wallet"
   }
 
+  const router = useRouter()
 
   async function launchToken() {
     setLaunching(true)
@@ -47,14 +49,15 @@ export function LaunchView() {
       console.log("Nonce:", nonce)
       console.log("Signature:", signature)
 
-      const res = await serverLaunchToken({
+      const ca = await serverLaunchToken({
         name,
         ticker,
         image,
         address,
         nonce: nonce!,
         signature
-      })
+      });
+      router.push(`/t/${ca}`);
 
       toast({
         title: "Token launched!",
