@@ -571,11 +571,12 @@ export function ClankItem({
       >
         {moment(c.created_at).fromNow()}
       </motion.div>
-      <div className="item_image flex items-center justify-center">
+      <div className="item_image flex items-center justify-center relative">
         {c.img_url ? <img src={c.img_url} alt="" className="w-full h-full object-contain" /> : 
         <div className="bg-purple-500 w-full h-full grid place-items-center">
           ${c.symbol}
         </div>}
+        {balance && (c.priceUsd * balance / 10**c.decimals) > 0.01 && <BalanceView balance={balance} decimals={c.decimals} priceUsd={c.priceUsd} />}
       </div>
       <div className="item_content flex-grow">
         <div className="item_content_info font-bold w-full">
@@ -744,7 +745,8 @@ export function ClankItem({
 function BalanceView({ balance, decimals, priceUsd }: { balance: number, decimals: number, priceUsd: number }) {
   return (
     <div className="absolute bottom-0 left-0 w-full bg-gradient-to-bl from-pink-500 to-purple-500  text-white p-1 grid place-items-center">
-      <span className="text-xs">you own ${formatPrice(priceUsd * balance / 10**decimals)}</span>
+      <span className="hidden md:block text-xs">you own ${formatPrice(priceUsd * balance / 10**decimals)}</span>
+      <span className="md:hidden text-xs">${formatPrice(priceUsd * balance / 10**decimals)} 💰</span>
     </div>
   )
 }
@@ -910,6 +912,7 @@ import { ClankfunLogo } from "./components/Logo";
 import { FButton } from "./components/FButton";
 import { FConnectButton } from "./components/FConnectButton";
 import { FSearchInput } from "./components/FInput";
+import { PriceInput } from "~/components/ui/priceinput";
 
 function BuyModal({ 
   clanker, 
