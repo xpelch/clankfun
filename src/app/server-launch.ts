@@ -37,19 +37,24 @@ export async function serverLaunchToken({
     requestKey: nonce,
   };
 
-  const response = await axios.post(apiUrl, requestData, {
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-    },
-  });
+  try {
+    const response = await axios.post(apiUrl, requestData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+    });
 
-  console.log('Token deployment response:')
-  console.log(JSON.stringify(response.data, null, 2))
-  if (!response.data.contract_address) {
+    console.log('Token deployment response:')
+    console.log(JSON.stringify(response.data, null, 2))
+    if (!response.data.contract_address) {
+      throw new Error("Failed to deploy token")
+    }
+    return redirect(`/t/${response.data.contract_address}`)
+  } catch(e: any) {
+    console.error("Failed to deploy token", e.message)
     throw new Error("Failed to deploy token")
   }
-  return redirect(`/t/${response.data.contract_address}`)
 }
 
 async function verifySignature(
