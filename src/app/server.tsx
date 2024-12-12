@@ -189,6 +189,7 @@ export async function serverFetchNativeCoin(): Promise<ClankerWithData> {
 }
 
 export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
+  ca = ca.toLowerCase()
   const cacheKey = `clanker:${ca}`;
   const cachedResult = await redis.get(cacheKey);
   if (cachedResult) {

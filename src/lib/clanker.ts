@@ -31,6 +31,12 @@ export async function scrapeLatestTimeRestricted(time = 1000 * 40) {
   const latestClanker = await db.clanker.findFirst({
     orderBy: {
       created_at: 'desc'
+    },
+    where: {
+      // Sometimes we insert clankers with a page of -1
+      page: {
+        not: -1
+      }
     }
   })
   let page = 1
@@ -39,6 +45,41 @@ export async function scrapeLatestTimeRestricted(time = 1000 * 40) {
   }
 
   await scrapeClankers(page, time)
+}
+
+export async function getOrScrapeByCa(ca: string) {
+  const viemFormatted = getAddress(ca)
+  const existing = await db.clanker.findFirst({
+    where: {
+      contract_address: ca.toLowerCase()
+    }
+  })
+
+  if (existing) {
+    return existing
+  }
+
+  const clanker = await clankerGetAPI(viemFormatted)
+  if (!clanker) {
+    return null
+  }
+
+  return db.clanker.create({
+    data: {
+      id: clanker.id,
+      created_at: new Date(clanker.created_at),
+      tx_hash: clanker.tx_hash,
+      contract_address: clanker.contract_address.toLowerCase(),
+      requestor_fid: clanker.requestor_fid ?? 0,
+      name: clanker.name,
+      symbol: clanker.symbol,
+      img_url: clanker.img_url,
+      pool_address: clanker.pool_address,
+      cast_hash: clanker.cast_hash,
+      type: clanker.type,
+      page: -1
+    }
+  })
 }
 
 export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40) {
@@ -105,6 +146,22 @@ export async function clankerListAPI(sort: 'desc' | 'asc', page = 1): Promise<AP
   const res = await axios.get(`https://www.clanker.world/api/tokens?sort=${sort}&page=${page}&type=all`);
   const data = res.data;
   const parsed = APIPageSchema.safeParse(data);
+  if (!parsed.success) {
+    console.error("Failed to parse", JSON.stringify(parsed.error.errors, null, 2));
+    throw new Error(`Invalid clanker data: ${parsed.error.errors.join(", ")}`);
+  }
+  return parsed.data
+}
+
+export async function clankerGetAPI(ca: string): Promise<APIClanker> {
+  const res = await axios.get(`https://www.clanker.world/api/get-clanker-by-address?address=${ca}`, {
+    headers: {
+      'x-api-key': env.CLANKER_API_KEY_2,
+    },
+  });
+  const data = res.data;
+  console.log("Clanker data", data);
+  const parsed = APIClankerSchema.safeParse(data.data);
   if (!parsed.success) {
     console.error("Failed to parse", JSON.stringify(parsed.error.errors, null, 2));
     throw new Error(`Invalid clanker data: ${parsed.error.errors.join(", ")}`);

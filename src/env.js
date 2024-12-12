@@ -17,6 +17,7 @@ export const env = createEnv({
     CRON_SECRET: z.string(),
     REDIS_URL: z.string(),
     CLANKER_API_KEY: z.string(),
+    CLANKER_API_KEY_2: z.string(),
     UPLOADTHING_TOKEN: z.string(),
   },
 
@@ -45,6 +46,7 @@ export const env = createEnv({
     CRON_SECRET: process.env.CRON_SECRET,
     REDIS_URL: process.env.REDIS_URL,
     CLANKER_API_KEY: process.env.CLANKER_API_KEY,
+    CLANKER_API_KEY_2: process.env.CLANKER_API_KEY_2,
     UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
   },
   /**
