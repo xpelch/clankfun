@@ -335,7 +335,7 @@ async function fetchPage(page = 1): Promise<ClankerWithData[]> {
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   })
-  return clankersWithMarketCap.filter((c) => (c.cast?.author.follower_count ?? 0) > 99)
+  return clankersWithMarketCap
 }
 
 export async function fetchParentCast(hash: string) {
@@ -348,6 +348,7 @@ export async function fetchParentCast(hash: string) {
 }
 
 async function fetchCastsNeynar(hashes: string[]) {
+  hashes = hashes.filter(h => h !== "clank.fun deployment")
   const neynar = new NeynarAPIClient(env.NEYNAR_API_KEY);
   const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
   return castData
