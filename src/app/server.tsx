@@ -332,6 +332,7 @@ export async function fetchParentCast(hash: string) {
 }
 
 async function fetchCastsNeynar(hashes: string[]) {
+  hashes = hashes.filter(h => h !== "clank.fun deployment")
   const neynar = new NeynarAPIClient(env.NEYNAR_API_KEY);
   const castData = (await neynar.fetchBulkCasts(hashes)).result.casts
   return castData
