@@ -5,6 +5,17 @@ import { redirect } from 'next/navigation';
 
 import { verifyMessage } from 'viem';
 import { env } from '~/env';
+import { getClankfunBalance } from './onchain';
+import { CLANKFUN_BALANCE_GATE } from './constants';
+
+export async function serverCheckBalance(address: string) {
+  const balance = await getClankfunBalance(address)
+
+  return {
+    balance,
+    required: CLANKFUN_BALANCE_GATE
+  }
+}
 
 export async function serverLaunchToken({
   name, ticker, image, address, nonce, signature
@@ -16,7 +27,12 @@ export async function serverLaunchToken({
   nonce: string,
   signature: any,
 }) {
-  // throw new Error("Not launched yet.")
+
+  const balance = await getClankfunBalance(address)
+  if (balance < CLANKFUN_BALANCE_GATE) {
+    throw new Error("Insufficient $CLANKFUN balance")
+  }
+
   const valid = await verifySignature(
     nonce,
     signature,
@@ -54,7 +70,7 @@ export async function serverLaunchToken({
     return response.data.contract_address as string
   } catch(e: any) {
     console.error("Failed to deploy token", e.message)
-    throw new Error("Failed to deploy token")
+    throw new Error("Clanker could not deploy your token")
   }
 }
 

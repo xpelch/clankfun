@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { ClankItem, Nav } from "../app";
-import { ClankerWithData } from "../server";
+import { type ClankerWithData } from "../server";
 import { FInput } from "./FInput";
 import { FImageUpload } from "./FImageUpload";
 import { useAccount, useSignMessage } from "wagmi";
 import { FConnectButtonLarge } from "./FConnectButton";
 import { Button } from "~/components/ui/button";
-import { serverLaunchToken } from "../server-launch";
+import { serverCheckBalance, serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { track } from "@vercel/analytics/react";
+import { CircleCheckBigIcon, CrossIcon, XIcon } from "lucide-react";
+import { CLANKFUN_BALANCE_GATE, CLANKFUN_CA } from "../constants";
+import { FButton } from "./FButton";
 
 export function LaunchView() {
   const { toast } = useToast()
@@ -21,6 +24,32 @@ export function LaunchView() {
   const [image, setImage] = useState<string | null>(null);
   const { address } = useAccount()
   const { isPending: signPending, signMessageAsync } = useSignMessage()
+
+  const [checkingBalance, setCheckingBalance] = useState<boolean>(false);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [required, setRequired] = useState<number | null>(null);
+
+  useEffect(() => {
+    async function checkBalance() {
+      if (!address) return;
+      setCheckingBalance(true)
+      try {
+        const { balance, required } = await serverCheckBalance(address)
+        setBalance(balance)
+        setRequired(required)
+      } catch(e: any) {
+        console.error("Failed to check balance", e.message)
+        toast({
+          title: "Error checking balance",
+          description: e.message
+        })
+      } finally {
+        setCheckingBalance(false)
+      }
+    }
+
+    void checkBalance()
+  }, [address])
 
   useEffect(() => {
     const randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -102,6 +131,9 @@ export function LaunchView() {
     cast: null
   } as ClankerWithData
 
+  const hasBalance = balance && required && balance >= required
+  const noBalance = balance && required && balance < required
+
   return (
     <div className="grid place-items-center">
       <div className="w-full max-w-[600px] flex flex-col items-center justify-center gap-6">
@@ -118,10 +150,28 @@ export function LaunchView() {
             via clank.fun
           </span>
         </div>
-        <div className="w-full">
-          <ClankItem c={previewClanker} />
+        <div className="flex flex-col items-start justify-start gap-2 w-full">
+          <div className="w-full   text-[15px] font-medium leading-[15px] text-white mb-2">
+            You need to hold at least {CLANKFUN_BALANCE_GATE.toLocaleString()} $CLANKFUN to launch tokens
+          </div>
+          {hasBalance && <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+            <CircleCheckBigIcon className="w-[20px] h-[20px] text-[#00ff00]" />
+            You hold enough $CLANKFUN
+          </div>}
+          {noBalance && 
+          <div className="w-full">
+            <div className="w-full   text-[15px] font-medium leading-[15px] text-white flex items-center gap-2">
+              <XIcon className="w-[20px] h-[20px] text-red-500" />
+              You do not hold enough $CLANKFUN
+              <a href={`/t/${CLANKFUN_CA}`} className="text-[#b4a2ff] underline">Get $CLANKFUN</a>
+            </div>
+          </div>
+          }
         </div>
-        <div className="w-full flex flex-col items-start justify-start gap-4">
+        {hasBalance && <div className="w-full">
+          <ClankItem c={previewClanker} />
+        </div>}
+        {hasBalance && <div className="w-full flex flex-col items-start justify-start gap-4">
           <div className="h-[53px] flex flex-col items-start justify-start gap-2 w-full">
             <div className="w-full   text-[15px] font-medium leading-[15px] text-white">
               Name
@@ -140,7 +190,7 @@ export function LaunchView() {
             </div>
             <FImageUpload onImage={setImage} />
           </div>
-        </div>
+        </div>}
         {address ? (<Button onClick={launchToken} className="w-full h-[46px] flex items-center justify-center gap-1 rounded-[10px] bg-[#7962d9] hover:bg-[#7962d9] px-[9px]" disabled={!canLaunch || launching}>
           <div className="  text-[15px] font-medium leading-[15px] text-white">
             {buttonName}

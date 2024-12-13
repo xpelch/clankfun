@@ -11,6 +11,7 @@ const provider = new ethers.JsonRpcProvider(env.NEXT_PUBLIC_ALCHEMY_BASE_ENDPOIN
 
 import { BigNumber } from '@ethersproject/bignumber';
 import { erc20Abi } from 'viem';
+import { CLANKFUN_CA } from './constants';
 
 // Optional Config object, but defaults to demo api-key and eth-mainnet.
 const settings = {
@@ -19,6 +20,38 @@ const settings = {
 };
 
 const alchemy = new Alchemy(settings);
+
+export async function getClankfunBalance(address?: string): Promise<number> {
+  if (!address) return 0
+  const url = `https://base-mainnet.g.alchemy.com/v2/${env.ALCHEMY_API_KEY}`
+  const headers = {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+
+  const body = JSON.stringify({
+      id: 1,
+      jsonrpc: "2.0",
+      method: "alchemy_getTokenBalances",
+      params: [
+          address,
+          [
+            CLANKFUN_CA
+          ]
+      ]
+  });
+
+  const res = await fetch(url, {
+      method: 'POST',
+      headers: headers,
+      body: body
+  })
+  const data = await res.json()
+  
+
+  const balance = parseInt(BigNumber.from(data.result.tokenBalances[0].tokenBalance).toString())
+  return balance / (10 ** 18)
+}
 
 export async function getTokenBalance(address?: string): Promise<Record<string, number>> {
   if (!address) return {}
