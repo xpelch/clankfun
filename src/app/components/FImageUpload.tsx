@@ -19,6 +19,7 @@ export function FImageUpload({
         className="w-full h-[200px] flex flex-col items-center justify-center gap-2 rounded-lg bg-white/10 px-2 cursor-pointer"
       >
         <UploadDropzone
+          config={{mode: "auto"}}
           endpoint="imageUploader"
           onClientUploadComplete={(res: any) => {
             // Do something with the response
