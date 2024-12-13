@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import { serverLaunchToken } from "../server-launch";
 import { useToast } from "~/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { track } from "@vercel/analytics/react";
 
 export function LaunchView() {
   const { toast } = useToast()
@@ -63,6 +64,10 @@ export function LaunchView() {
       setName("")
       setTicker("")
       setImage(null)
+      track("Launch", { 
+        address,
+        ca 
+      })
       toast({
         title: "Token launched! Redirecting...",
         description: "Your token has been successfully launched. Redirecting to the token page."

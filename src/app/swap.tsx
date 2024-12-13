@@ -1,5 +1,6 @@
 "use client"
 
+import { track } from '@vercel/analytics/react';
 import { serverEthUSDPrice, serverFetchSwapPrice, serverFetchSwapQuote, type ClankerWithData } from "./server";
 import { debounce } from 'lodash'; 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -13,7 +14,6 @@ import {
 } from "viem";
 import type { Address, Hex } from "viem";
 import { useToast } from "~/hooks/use-toast";
-import { PriceInput } from "~/components/ui/priceinput";
 import { ConnectKitButton } from "connectkit";
 import { FFromInput, FToInput } from "./components/FSwapper";
 import { FButton } from "./components/FButton";
@@ -170,6 +170,21 @@ export function SwapInterface({
       });
     }
     if (receipt) {
+      if (isBuying) {
+        track("Buy", {
+          amountUSD: swapUSDAmount,
+          token: clanker.symbol,
+          contract: clanker.contract_address,
+          txHash: receipt.transactionHash,
+        })
+      } else {
+        track("Sell", {
+          amountUSD: swapUSDAmount,
+          token: clanker.symbol,
+          contract: clanker.contract_address,
+          txHash: receipt.transactionHash,
+        })
+      }
       toast({
         title: "Clanked! 💰 👌",
         description: "Your transaction was successful.",
