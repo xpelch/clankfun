@@ -16,7 +16,7 @@ export async function serverLaunchToken({
   nonce: string,
   signature: any,
 }) {
-  throw new Error("Not launched yet.")
+  // throw new Error("Not launched yet.")
   const valid = await verifySignature(
     nonce,
     signature,

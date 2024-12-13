@@ -64,8 +64,11 @@ export async function getOrScrapeByCa(ca: string) {
     return null
   }
 
-  return db.clanker.create({
-    data: {
+  return db.clanker.upsert({
+    where: {
+      id: clanker.id,
+    },
+    create: {
       id: clanker.id,
       created_at: new Date(clanker.created_at),
       tx_hash: clanker.tx_hash,
@@ -77,9 +80,10 @@ export async function getOrScrapeByCa(ca: string) {
       pool_address: clanker.pool_address,
       cast_hash: clanker.cast_hash,
       type: clanker.type,
-      page: -1
-    }
-  })
+      page: -1,
+    },
+    update: {},
+  });
 }
 
 export async function scrapeClankers(startPage: number, maxRunTimeMs = 1000 * 40) {

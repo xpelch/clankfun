@@ -30,6 +30,8 @@ export function LaunchView() {
   let buttonName = "Launch"
   if (signPending) {
     buttonName = "Sign in wallet"
+  } else if (launching) {
+    buttonName = "Launching..."
   }
 
   const router = useRouter()
@@ -57,11 +59,15 @@ export function LaunchView() {
         nonce: nonce!,
         signature
       });
-      router.push(`/t/${ca}`);
 
+      setName("")
+      setTicker("")
+      setImage(null)
       toast({
-        title: "Token launched!",
+        title: "Token launched! Redirecting...",
+        description: "Your token has been successfully launched. Redirecting to the token page."
       })
+      router.push(`/t/${ca}`);
     } catch(e: any) {
       console.error("Failed to launch token", e.message)
       toast({
