@@ -27,7 +27,7 @@ export async function serverLaunchToken({
   nonce: string,
   signature: any,
 }) {
-
+  throw new Error("Not yet ;)")
   const balance = await getClankfunBalance(address)
   if (balance < CLANKFUN_BALANCE_GATE) {
     throw new Error("Insufficient $CLANKFUN balance")
