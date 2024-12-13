@@ -249,6 +249,13 @@ export async function serverFetchCA(ca: string): Promise<ClankerWithData> {
 }
 
 export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
+  const cacheKey = `topclankers`;
+  const cachedResult = await redis.get(cacheKey);
+  if (cachedResult) {
+    console.log(`Clanker cache hit for ${cacheKey}`);
+    return JSON.parse(cachedResult);
+  }
+
   const hotClankers = await getTopClankersCA()
 
   const dbClankers = await db.clanker.findMany({
@@ -281,7 +288,7 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
   const mcaps = await fetchMultiPoolMarketCaps(poolAddresses, contractAddresses)
   const casts = await fetchCastsNeynar(castHashes)
 
-  return dbClankers.map((clanker, i) => {
+  const res = dbClankers.map((clanker, i) => {
     return {
       id: clanker.id,
       created_at: clanker.created_at.toString(),
@@ -301,6 +308,9 @@ export async function serverFetchTopClankers(): Promise<ClankerWithData[]> {
       cast: casts.find(c => c.hash === clanker.cast_hash) ?? null
     }
   }).sort((a, b) => b.marketCap - a.marketCap)
+
+  await redis.set(cacheKey, JSON.stringify(res), "EX", 60 * 10);
+  return res
 }
 
 export async function serverFetchClankers(page = 1): Promise<ClankerResponse> {
