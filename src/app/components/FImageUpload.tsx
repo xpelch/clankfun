@@ -34,6 +34,8 @@ export function FImageUpload({
             toast({
               title: "Error uploading image",
               description: error.message,
+              duration: 10000,
+              variant: "destructive",
             })
           }}
         />
