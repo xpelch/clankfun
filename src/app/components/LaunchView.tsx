@@ -51,9 +51,13 @@ export function LaunchView() {
     void checkBalance()
   }, [address])
 
-  useEffect(() => {
+  function updateNonce() {
     const randomString = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     setNonce(randomString);
+  }
+
+  useEffect(() => {
+    updateNonce()
   }, []);
 
   const canLaunch = nonce && name.length > 0 && ticker.length > 0 && address
@@ -108,6 +112,7 @@ export function LaunchView() {
         title: "Error launching token",
         description: e.message
       })
+      updateNonce()
     } finally {
       setLaunching(false)
     }

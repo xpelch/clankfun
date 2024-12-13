@@ -11,6 +11,28 @@ import { serverFetchCA } from "~/app/server";
 
 type Params = Promise<{ca: string}>;
 
+export async function generateMetadata({ params }: {
+  params: Params
+}) {
+  const { ca } = await params
+  await getOrScrapeByCa(ca)
+  const data = await serverFetchCA(ca)
+
+  if (!data) {
+    return {
+      title: "Token not found"
+    }
+  }
+
+  return {
+    title: `Trade ${data.name}`,
+    description: `Trade ${data.name} on clank.fun`,
+    openGraph: {
+      images: [data.img_url ? data.img_url : 'https://clank.fun/og.png'],
+    }
+  }
+}
+
 export default async function Page({ 
   params
 }: { 
