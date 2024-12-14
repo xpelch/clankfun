@@ -133,6 +133,7 @@ export async function serverFetchHotClankers(): Promise<ClankerWithData[]> {
 }
 
 export async function serverSearchClankers(query: string): Promise<ClankerWithData[]> {
+  query = query.trim()
   const dbClankers = await db.clanker.findMany({
     where: {
       OR: [
@@ -148,6 +149,12 @@ export async function serverSearchClankers(query: string): Promise<ClankerWithDa
             mode: 'insensitive',
           },
         },
+        {
+          contract_address: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        }
       ],
     },
     take: 20
