@@ -18,6 +18,7 @@ import { ConnectKitButton } from "connectkit";
 import { FFromInput, FToInput } from "./components/FSwapper";
 import { FButton } from "./components/FButton";
 import { Button } from "~/components/ui/button";
+import { categorizeAmt } from '~/lib/analytics';
 
 const MAX_ALLOWANCE =
   115792089237316195423570985008687907853269984665640564039457584007913129639935n;
@@ -172,14 +173,14 @@ export function SwapInterface({
     if (receipt) {
       if (isBuying) {
         track("Buy", {
-          amountUSD: swapUSDAmount,
+          amountUSD: categorizeAmt(swapUSDAmount),
           token: clanker.symbol,
           contract: clanker.contract_address,
           txHash: receipt.transactionHash,
         })
       } else {
         track("Sell", {
-          amountUSD: swapUSDAmount,
+          amountUSD: categorizeAmt(swapUSDAmount),
           token: clanker.symbol,
           contract: clanker.contract_address,
           txHash: receipt.transactionHash,
