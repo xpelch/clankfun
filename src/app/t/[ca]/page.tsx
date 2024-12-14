@@ -8,6 +8,7 @@ export const revalidate = 0
 import { Nav, TradeApp } from "~/app/app";
 import { getOrScrapeByCa } from "~/lib/clanker";
 import { serverFetchCA } from "~/app/server";
+import { track } from "@vercel/analytics/server";
 
 type Params = Promise<{ca: string}>;
 
@@ -23,6 +24,10 @@ export async function generateMetadata({ params }: {
       title: "Token not found"
     }
   }
+
+  track("View coin", {
+    ca: data.contract_address
+  })
 
   return {
     title: `Trade ${data.name}`,
