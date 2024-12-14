@@ -281,6 +281,9 @@ export function SwapInterface({
         title: "Copied Contract Address",
         description: `The contract address has been copied to your clipboard (${clanker.contract_address.slice(0, 6)}...)`,
       })
+      track("Copy CA", {
+        contract: clanker.contract_address,
+      })
     }
   }
 
